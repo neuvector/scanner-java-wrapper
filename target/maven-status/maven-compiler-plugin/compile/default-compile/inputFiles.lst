@@ -1,2 +1,11 @@
-/Users/song/neuvector/github/songlongcn/scanner/src/main/java/com/neuvector/ScanConfig.java
+/Users/song/neuvector/github/songlongcn/scanner/src/main/java/com/neuvector/model/ScanRepoReportData.java
+/Users/song/neuvector/github/songlongcn/scanner/src/main/java/com/neuvector/model/ScanSecret.java
+/Users/song/neuvector/github/songlongcn/scanner/src/main/java/com/neuvector/model/BenchItem.java
+/Users/song/neuvector/github/songlongcn/scanner/src/main/java/com/neuvector/model/ScanLayer.java
+/Users/song/neuvector/github/songlongcn/scanner/src/main/java/com/neuvector/model/ScanRepoReport.java
+/Users/song/neuvector/github/songlongcn/scanner/src/main/java/com/neuvector/model/ScanModule.java
+/Users/song/neuvector/github/songlongcn/scanner/src/main/java/com/neuvector/model/ScanReportData.java
+/Users/song/neuvector/github/songlongcn/scanner/src/main/java/com/neuvector/model/ScanSetIdPerm.java
+/Users/song/neuvector/github/songlongcn/scanner/src/main/java/com/neuvector/model/ModuleCve.java
+/Users/song/neuvector/github/songlongcn/scanner/src/main/java/com/neuvector/model/Vulnerability.java
 /Users/song/neuvector/github/songlongcn/scanner/src/main/java/com/neuvector/Scanner.java

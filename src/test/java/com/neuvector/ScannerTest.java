@@ -2,6 +2,8 @@ package com.neuvector;
 
 import static org.junit.Assert.assertTrue;
 
+import com.neuvector.model.ScanRepoReportData;
+
 import org.junit.Test;
 
 /**
@@ -18,11 +20,8 @@ public class ScannerTest
         String repositoryTag = "3.6";
         String nvScannerImage = "neuvector/scanner:latest";
 
-
-        ScanConfig config = new ScanConfig.ConfigBuilder(repository, repositoryTag, license, nvScannerImage).build();
-
-        net.sf.json.JSONObject scanResultObj = Scanner.scan(config);
-        assertTrue( scanResultObj != null );
+        ScanRepoReportData scanReportData = Scanner.scanLocalImage(repository, repositoryTag, license, nvScannerImage);
+        assertTrue( scanReportData != null );
     }
 
     @Test
@@ -36,10 +35,7 @@ public class ScannerTest
         String repositoryTag = "3.6";
         String nvScannerImage = "neuvector/scanner:latest";
 
-        ScanConfig config = new ScanConfig.ConfigBuilder(repository, repositoryTag, license, nvScannerImage).registryURL(registry).registryUser(regUser).registryPassword(regPassword).build();
-
-        net.sf.json.JSONObject scanResultObj = Scanner.scan(config);
-        assertTrue( scanResultObj != null );
-
+        ScanRepoReportData scanReportData = Scanner.scanRegistry(registry, regUser, regPassword, repository, repositoryTag, license, nvScannerImage);
+        assertTrue( scanReportData != null );
     }
 }
