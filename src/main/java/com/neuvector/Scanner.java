@@ -12,21 +12,13 @@ import com.neuvector.model.ScanRepoReportData;
 import net.sf.json.JSONObject;
 
 /**
- * Scanner supports checking security vulnerabilities of the docker registry or repository (image). 
+ * NeuVector Scanner APIs can scan security vulnerabilities of the docker registry or local image. 
  * <p>
- * It runs <code>docker run --name neuvector.scanner --rm -v "/var/run/docker.sock:/var/run/docker.sock" -v "/var/neuvector:/var/neuvector -e SCANNER_REPOSITORY=REPOSITORY-TO-SCAN -e SCANNER_TAG=REPOSITORY-TO-SCAN-TAG -e SCANNER_LICENSE=NV-LICENSE   -e SCANNER_REGISTRY=REGISTRY-TO-SCAN -e SCANNER_REGISTRY_USERNAME=REGISTRY-LOGIN-USER -e SCANNER_REGISTRY_PASSWORD=REGISTRY-LOGIN-PASSWORD NeuVector-Scanner-Image" </code> on your host machine.
- * Requirements:
- * <ul>
- * <li> <code> docker </code> is runnable and pull the NeuVector Scanner Image to your host machine.
- * <li> You need to create the directory <code> /var/neuvector </code> on your host machine.
- * <li> The application has the permission to create and write file <code> /var/neuvector/scan_result.json </code>.
- * </ul>
+ * To scan the docker registry, you can call the API <code> com.neuvector.Scanner.scanRegistry() </code> 
  * <p>
- * The method <code> Scanner.scanRegistry(String registryURL, String registryUsername, String registryPassword, String repository, String repositoryTag, String license, String nvScannerImage) </code> check the security vulnerabilities of the docker registry.
+ * To scan the docker local image, you can call the API <code> Scanner.scanLocalImage() </code>
  * <p>
- *  * The method <code> Scanner.scanLocalImage(String repository, String repositoryTag, String license, String nvScannerImage) </code> check the security vulnerabilities of the docker local repository or image.
- * 
- * It returns <code> ScanRepoReportData </code> object.
+ * It returns a Java bean object <code> com.neuvector.model.ScanRepoReportData </code>
  */
 public class Scanner 
 {
@@ -36,7 +28,7 @@ public class Scanner
     private static final String SCAN_REPORT= "/var/neuvector/scan_result.json";
 
     /**
-     * To scan a docker registry and return a ScanRepoReportData object.
+     * To scan a docker registry and return a java bean object of com.neuvector.model.ScanRepoReportData.
      * 
      * @param registryURL
      * @param registryUsername
@@ -64,15 +56,15 @@ public class Scanner
     }
 
     /**
-     * To scan a docker local repository or image and return a ScanRepoReportData object.
+     * To scan a docker local repository or image and return a java bean object of com.neuvector.model.ScanRepoReportData.
      * 
-     * @param repository
-     * @param repositoryTag
+     * @param imageName
+     * @param imageTag
      * @param license
      * @param nvScannerImage
      * @return ScanRepoReportData
      */
-    public static ScanRepoReportData scanLocalImage(String repository, String repositoryTag, String license, String nvScannerImage) {
+    public static ScanRepoReportData scanLocalImage(String imageName, String imageTag, String license, String nvScannerImage) {
 
         String errorMessage = checkDockerStatus(nvScannerImage);
         ScanRepoReportData reportData = null;
@@ -81,7 +73,7 @@ public class Scanner
             reportData = new ScanRepoReportData();
             reportData.setError_message(errorMessage);
         }else{
-            String[] cmdArgs = {"docker", "run", "--name", "neuvector.scanner", "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", Scanner.PATH_MAPPING, "-e", "SCANNER_REPOSITORY=" + repository, "-e", "SCANNER_TAG=" + repositoryTag, "-e", "SCANNER_LICENSE=" + license, nvScannerImage};
+            String[] cmdArgs = {"docker", "run", "--name", "neuvector.scanner", "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", Scanner.PATH_MAPPING, "-e", "SCANNER_REPOSITORY=" + imageName, "-e", "SCANNER_TAG=" + imageTag, "-e", "SCANNER_LICENSE=" + license, nvScannerImage};
             reportData = runScan(cmdArgs);
         }
 
@@ -93,7 +85,7 @@ public class Scanner
      * To check the status of the docker client and the scanner image on the host machine.
      * 
      * @param nvScannerImage
-     * @return String It is an empty string if the docker is ready to run and the scanner image exists. Otherwise, it returns the error messages.
+     * @return string. It returns an empty string if the docker status is good. Otherwise, it returns error messages.
      */
     private static String checkDockerStatus(String nvScannerImage) {
         String[] cmdArgs = { "docker", "image", "inspect", nvScannerImage };

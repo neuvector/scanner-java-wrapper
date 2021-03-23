@@ -1,21 +1,67 @@
-### Introduction
+## NeuVector Security Scanner ##
 
-Scanner supports checking security vulnerabilities of the docker registry or repository (image). 
+You can call NeuVector Scanner APIs to scan the docker registry or local repository (image). 
 
-It runs <code>docker run --name neuvector.scanner --rm -v "/var/run/docker.sock:/var/run/docker.sock" -v "/var/neuvector:/var/neuvector -e SCANNER_REPOSITORY=REPOSITORY-TO-SCAN -e SCANNER_TAG=REPOSITORY-TO-SCAN-TAG -e SCANNER_LICENSE=NV-LICENSE   -e SCANNER_REGISTRY=REGISTRY-TO-SCAN -e SCANNER_REGISTRY_USERNAME=REGISTRY-LOGIN-USER -e SCANNER_REGISTRY_PASSWORD=REGISTRY-LOGIN-PASSWORD NeuVector-Scanner-Image" </code> on your host machine.
+## Prerequisites for the APIs to work ##
+1. Docker must be installed on the same machine that the NeuVector Scanner APIs is going to run because these APIs will run "docker run" on the host machine.
 
-There are two methods can be called. Both of them will return a ScanRepoReportData object.
+```
+docker run --name neuvector.scanner --rm -v "/var/run/docker.sock:/var/run/docker.sock" -v "/var/neuvector:/var/neuvector ... <NeuVector-Scanner-Image>
+```
 
-The first one is to check the security vulnerabilities of the docker registry.
+2. Ensure NeuVector Scanner image exists on the machine, you will need permission to pull the image either from NeuVector docker hub or from your private repository.
 
-Scanner.scanRegistry(String registryURL, String registryUsername, String registryPassword, String repository, String repositoryTag, String license, String nvScannerImage)
+```
+sudo docker pull <NeuVector's Scanner Image>
+```
 
-The secode one is to check the security vulnerabilities of the docker local repository or image.
+3. Ensure the folder "/var/neuvector" gets created on the machine and make it writable for the NeuVector Scanner Container because the Scanner will generate an outfile "/var/neuvector/scan_result.json"
 
-Scanner.scanLocalImage(String repository, String repositoryTag, String license, String nvScannerImage) 
+4. Have the license to run the NeuVector Scanner
 
-#### Requirements:
-1. On your host machine, make sure <code> docker </code> is runnable 
-2. Pull the NeuVector Scanner Image to your host machine.
-3. Create the directory <code> /var/neuvector </code> on your host machine.
-4. Make sure the directory "/var/neuvector" writable to the application, so the scan output file "/var/neuvector/scan_result.json" can be created and read by the application.
+## Usage of NeuVector Scanner APIs ##
+put scanner-1.0-jar-with-dependencies.jar to your classpath.
+
+1. to scan a local image, you can call the API com.neuvector.Scanner.scanLocalImage() 
+```
+    //NeuVector license to run the Scanner
+    String license = "xxx";  
+
+    // the name of the local image to be scanned. For example, you want to scan a local image "alpine:3.6"
+    String imageName = "alpine";
+
+    // the local image tag.  
+    String imageTag = "3.6";
+
+    // NeuVector Scanner image name. For example, the image name is "neuvector/scanner:latest" if you pull it from NeuVector Docker hub.
+    String nvScannerImage = "neuvector/scanner:latest";
+
+    // Scan result gets returned as a java bean object
+    com.neuvector.model.ScanRepoReportData scanReportData = com.neuvector.Scanner.scanLocalImage(imageName, imageTag, license, nvScannerImage);
+```
+
+2. to scan a registry, you can call the API com.neuvector.Scanner.scanRegistry()
+
+```
+    // NeuVector license to run the Scanner
+    String license = "xxx";  
+
+    // Registry URL to be scanned. For example, the registry url is "https://registry.hub.docker.com" if you want to scan the Docker hub
+    String registry = "https://registry.hub.docker.com";
+
+    // Login User of the registry url. For example, the login user and password are empty if you want to scan a public repository on the Docker hub
+    String regUser = "";
+    String regPassword = "";
+
+    // the name of the repository to be scanned. For example, you want to scan a public repository "library/alpine:3.6"
+    String repository = "library/alpine";
+
+    // the repository tag. 
+    String repositoryTag = "3.6";
+
+    // NeuVector Scanner image name. For example, the image name is "neuvector/scanner:latest" if you pull it from NeuVector Docker hub.
+    String nvScannerImage = "neuvector/scanner:latest";
+
+    // Scan result gets returned as a java bean object
+    com.neuvector.model.ScanRepoReportData scanReportData = com.neuvector.Scanner.scanRegistry(registry, regUser, regPassword, repository, repositoryTag, license, nvScannerImage);
+```
