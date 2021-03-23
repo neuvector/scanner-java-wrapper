@@ -1,18 +1,18 @@
 ## NeuVector Security Scanner ##
 
-You can call NeuVector Scanner APIs to scan the docker registry or local repository (image). 
+You can call NeuVector Scanner APIs to scan the docker registry or local docker image. 
 
 ## Prerequisites for the APIs to work ##
 1. Docker must be installed on the same machine that the NeuVector Scanner APIs is going to run because these APIs will run "docker run" on the host machine.
 
 ```
-docker run --name neuvector.scanner --rm -v "/var/run/docker.sock:/var/run/docker.sock" -v "/var/neuvector:/var/neuvector ... <NeuVector-Scanner-Image>
+docker run --name neuvector.scanner --rm -v "/var/run/docker.sock:/var/run/docker.sock" -v "/var/neuvector:/var/neuvector ... < NeuVector-Scanner-Image >
 ```
 
 2. Ensure NeuVector Scanner image exists on the machine, you will need permission to pull the image either from NeuVector docker hub or from your private repository.
 
 ```
-sudo docker pull <NeuVector's Scanner Image>
+sudo docker pull < NeuVector's Scanner Image >
 ```
 
 3. Ensure the folder "/var/neuvector" gets created on the machine and make it writable for the NeuVector Scanner Container because the Scanner will generate an outfile "/var/neuvector/scan_result.json"
@@ -20,7 +20,7 @@ sudo docker pull <NeuVector's Scanner Image>
 4. Have the license to run the NeuVector Scanner
 
 ## Usage of NeuVector Scanner APIs ##
-put scanner-1.0-jar-with-dependencies.jar to your classpath.
+add scanner.jar to your classpath.
 
 1. to scan a local image, you can call the API com.neuvector.Scanner.scanLocalImage() 
 ```
