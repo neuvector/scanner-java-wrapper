@@ -30,16 +30,16 @@ public class Scanner
     /**
      * To scan a docker registry and return a java bean object of com.neuvector.model.ScanRepoReportData.
      * 
-     * @param registryURL
-     * @param registryUsername
-     * @param registryPassword
-     * @param repository
-     * @param repositoryTag
-     * @param license
-     * @param nvScannerImage
-     * @param nvRegistryURL
-     * @param nvRegistryUser
-     * @param nvRegistryPassword
+     * @param registryURL The registry to be scanned
+     * @param registryUsername The login user of the registry to be scanned
+     * @param registryPassword The login password of the registry to be scanned
+     * @param repository The repository to be scanned
+     * @param repositoryTag The tag of the repository to be scanned
+     * @param license The license to run NeuVector Scanner
+     * @param nvScannerImage The name of the NeuVector Scanner Image
+     * @param nvRegistryURL The registry url from which to pull NeuVector Scanner image
+     * @param nvRegistryUser The login user of the registry url
+     * @param nvRegistryPassword The login password of the registry url
      * @return ScanRepoReportData
      */
     public static ScanRepoReportData scanRegistry(String registryURL, String registryUsername, String registryPassword, String repository, String repositoryTag, String license, String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword) {
@@ -66,9 +66,9 @@ public class Scanner
      * @param imageTag The local image tag
      * @param license The license to run NeuVector Scanner
      * @param nvScannerImage The name of the NeuVector Scanner Image 
-     * @param nvRegistryURL
-     * @param nvRegistryUser
-     * @param nvRegistryPassword
+     * @param nvRegistryURL The registry url from which to pull NeuVector Scanner image
+     * @param nvRegistryUser The login user of the registry url
+     * @param nvRegistryPassword The login password of the registry url
      * @return ScanRepoReportData
      */
     public static ScanRepoReportData scanLocalImage(String imageName, String imageTag, String license, String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword) {
