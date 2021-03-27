@@ -20,7 +20,7 @@ public class ScannerTest
         String imageTag = "3.6";
         String nvScannerImage = "neuvector/scanner:latest";
 
-        ScanRepoReportData scanReportData = Scanner.scanLocalImage(imageName, imageTag, license, nvScannerImage);
+        ScanRepoReportData scanReportData = Scanner.scanLocalImage(imageName, imageTag, license, nvScannerImage, "", "", "");
         assertTrue( scanReportData != null );
     }
 
@@ -35,7 +35,7 @@ public class ScannerTest
         String repositoryTag = "3.6";
         String nvScannerImage = "neuvector/scanner:latest";
 
-        ScanRepoReportData scanReportData = Scanner.scanRegistry(registry, regUser, regPassword, repository, repositoryTag, license, nvScannerImage);
+        ScanRepoReportData scanReportData = Scanner.scanRegistry(registry, regUser, regPassword, repository, repositoryTag, license, nvScannerImage, "", "", "");
         assertTrue( scanReportData != null );
     }
 }
