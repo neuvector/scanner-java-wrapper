@@ -8,6 +8,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
 
+import com.neuvector.model.Image;
+import com.neuvector.model.NVScanner;
+import com.neuvector.model.Registry;
 import com.neuvector.model.ScanRepoReportData;
 import net.sf.json.JSONObject;
 
@@ -27,60 +30,59 @@ public class Scanner
     private static final String PATH_MAPPING = "/var/neuvector:/var/neuvector";
     private static final String SCAN_REPORT = "/var/neuvector/scan_result.json";
 
-    /**
-     * To scan a docker registry and return a java bean object of com.neuvector.model.ScanRepoReportData.
-     * 
-     * @param registryURL The registry to be scanned
-     * @param registryUsername The login user of the registry to be scanned
-     * @param registryPassword The login password of the registry to be scanned
-     * @param repository The repository to be scanned
-     * @param repositoryTag The tag of the repository to be scanned
-     * @param license The license to run NeuVector Scanner
-     * @param nvScannerImage The name of the NeuVector Scanner Image
-     * @param nvRegistryURL The registry url from which to pull NeuVector Scanner image
-     * @param nvRegistryUser The login user of the registry url
-     * @param nvRegistryPassword The login password of the registry url
-     * @return ScanRepoReportData
-     */
-    public static ScanRepoReportData scanRegistry(String registryURL, String registryUsername, String registryPassword, String repository, String repositoryTag, String license, String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword) {
+     /**
+      * To scan a docker registry and return a java bean object of com.neuvector.model.ScanRepoReportData.
+      * 
+      * @param registry The registry object to be scanned
+      * @param nvScanner The NeuVector Scanner object
+      * @param license The String typed license to run the NeuVector Scanner
+      * @return ScanRepoReportData
+      */
+    public static ScanRepoReportData scanRegistry(Registry registry, NVScanner nvScanner, String license) {
+
+        String errorMessage = "";
+        if(registry == null || nvScanner == null){
+            errorMessage = "To call scanRegistry() API, the Registry and nvScanner can't be null";
+        }
 
         
-        String errorMessage = pullDockerImage(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword);
+        errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
         ScanRepoReportData reportData = null;
 
         if(errorMessage.length() > 0){
             reportData = new ScanRepoReportData();
             reportData.setError_message(errorMessage);
         }else{
-            String[] cmdArgs = {"docker", "run", "--name", "neuvector.scanner", "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", Scanner.PATH_MAPPING, "-e", "SCANNER_REPOSITORY=" + repository, "-e", "SCANNER_TAG=" + repositoryTag, "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registryURL, "-e", "SCANNER_REGISTRY_USERNAME=" + registryUsername, "-e", "SCANNER_REGISTRY_PASSWORD=" + registryPassword, getNVImagePath(nvScannerImage, nvRegistryURL)};
+            String[] cmdArgs = {"docker", "run", "--name", "neuvector.scanner", "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", Scanner.PATH_MAPPING, "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), "-e", "SCANNER_REGISTRY_USERNAME=" + registry.getLoginUser(), "-e", "SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword() , getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
             reportData = runScan(cmdArgs);
         }
 
         return reportData;
     }
 
-    /**
-     * To scan a docker local repository or image and return a java bean object of com.neuvector.model.ScanRepoReportData.
-     * 
-     * @param imageName The name of the local image which is going to be scanned
-     * @param imageTag The local image tag
-     * @param license The license to run NeuVector Scanner
-     * @param nvScannerImage The name of the NeuVector Scanner Image 
-     * @param nvRegistryURL The registry url from which to pull NeuVector Scanner image
-     * @param nvRegistryUser The login user of the registry url
-     * @param nvRegistryPassword The login password of the registry url
-     * @return ScanRepoReportData
-     */
-    public static ScanRepoReportData scanLocalImage(String imageName, String imageTag, String license, String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword) {
+     /**
+      * To scan a docker local image and return a java bean object of com.neuvector.model.ScanRepoReportData.
+      * 
+      * @param image The image object to be scanned
+      * @param nvScanner The NeuVector Scanner object
+      * @param license The String typed license to run the NeuVector Scanner
+      * @return ScanRepoReportData
+      */
+    public static ScanRepoReportData scanLocalImage(Image image, NVScanner nvScanner, String license) {
 
-        String errorMessage = pullDockerImage(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword);
+        String errorMessage = "";
+        if(image == null || nvScanner == null){
+            errorMessage = "To call scanLocalImage() API, the image and nvScanner object can't be null.";
+        }
+
+        errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
         ScanRepoReportData reportData = null;
 
         if(errorMessage.length() > 0){
             reportData = new ScanRepoReportData();
             reportData.setError_message(errorMessage);
         }else{
-            String[] cmdArgs = {"docker", "run", "--name", "neuvector.scanner", "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", Scanner.PATH_MAPPING, "-e", "SCANNER_REPOSITORY=" + imageName, "-e", "SCANNER_TAG=" + imageTag, "-e", "SCANNER_LICENSE=" + license, getNVImagePath(nvScannerImage, nvRegistryURL)};
+            String[] cmdArgs = {"docker", "run", "--name", "neuvector.scanner", "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", Scanner.PATH_MAPPING, "-e", "SCANNER_REPOSITORY=" + image.getImageName(), "-e", "SCANNER_TAG=" + image.getImageTag(), "-e", "SCANNER_LICENSE=" + license, getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
             reportData = runScan(cmdArgs);
         }
 
