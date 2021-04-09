@@ -46,9 +46,10 @@ public class ScannerTest
         String nvRegistryURL = registryURL;
         String nvRegistryUser = "xxx";
         String nvRegistryPassword = "xxx";
+        String mountPath = "/temp";  //mountPath is an optional parameter. It will use "/var/neuvector" by default.
 
         Registry registry = new Registry(registryURL, regUser, regPassword,repository,repositoryTag);
-        NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword);
+        NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath);
 
         ScanRepoReportData scanReportData = Scanner.scanRegistry(registry, scanner, license);
         assertTrue( scanReportData != null );

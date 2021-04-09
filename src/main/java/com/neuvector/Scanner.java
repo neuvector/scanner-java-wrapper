@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Random;
 import java.util.stream.Stream;
 
 import com.neuvector.model.Image;
@@ -27,8 +28,8 @@ public class Scanner
 {
 
     private static final String SOCKET_MAPPING = "/var/run/docker.sock:/var/run/docker.sock";
-    private static final String PATH_MAPPING = "/var/neuvector:/var/neuvector";
-    private static final String SCAN_REPORT = "/var/neuvector/scan_result.json";
+    private static final String CONTAINER_PATH = "/var/neuvector";
+    private static final String SCAN_REPORT = "scan_result.json";
 
      /**
       * To scan a docker registry and return a java bean object of com.neuvector.model.ScanRepoReportData.
@@ -42,7 +43,7 @@ public class Scanner
 
         String errorMessage = "";
         if(registry == null || nvScanner == null){
-            errorMessage = "To call scanRegistry() API, the Registry and nvScanner can't be null";
+            errorMessage = "The Registry and nvScanner can't be null.";
         }
 
         
@@ -53,8 +54,8 @@ public class Scanner
             reportData = new ScanRepoReportData();
             reportData.setError_message(errorMessage);
         }else{
-            String[] cmdArgs = {"docker", "run", "--name", "neuvector.scanner", "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", Scanner.PATH_MAPPING, "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), "-e", "SCANNER_REGISTRY_USERNAME=" + registry.getLoginUser(), "-e", "SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword() , getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
-            reportData = runScan(cmdArgs);
+            String[] cmdArgs = {"docker", "run", "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), "-e", "SCANNER_REGISTRY_USERNAME=" + registry.getLoginUser(), "-e", "SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword() , getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
+            reportData = runScan(cmdArgs, nvScanner);
         }
 
         return reportData;
@@ -72,7 +73,7 @@ public class Scanner
 
         String errorMessage = "";
         if(image == null || nvScanner == null){
-            errorMessage = "To call scanLocalImage() API, the image and nvScanner object can't be null.";
+            errorMessage = "The image and nvScanner can't be null.";
         }
 
         errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
@@ -82,8 +83,8 @@ public class Scanner
             reportData = new ScanRepoReportData();
             reportData.setError_message(errorMessage);
         }else{
-            String[] cmdArgs = {"docker", "run", "--name", "neuvector.scanner", "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", Scanner.PATH_MAPPING, "-e", "SCANNER_REPOSITORY=" + image.getImageName(), "-e", "SCANNER_TAG=" + image.getImageTag(), "-e", "SCANNER_LICENSE=" + license, getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
-            reportData = runScan(cmdArgs);
+            String[] cmdArgs = {"docker", "run", "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + image.getImageName(), "-e", "SCANNER_TAG=" + image.getImageTag(), "-e", "SCANNER_LICENSE=" + license, getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
+            reportData = runScan(cmdArgs, nvScanner);
         }
 
         return reportData;
@@ -145,12 +146,12 @@ public class Scanner
         return nvImagePath;
     }
 
-    private static ScanRepoReportData parseScanReport(){
+    private static ScanRepoReportData parseScanReport(String scanReportPath){
         ScanRepoReportData scanReportData;
         StringBuilder contentBuilder = new StringBuilder();
         String errorMessage = null;
 
-        try (Stream<String> stream = Files.lines(Paths.get(SCAN_REPORT), StandardCharsets.UTF_8)) {
+        try (Stream<String> stream = Files.lines(Paths.get(scanReportPath), StandardCharsets.UTF_8)) {
             stream.forEach(s -> contentBuilder.append(s).append("\n"));
         } catch (IOException ex) {
             errorMessage = ex.getMessage();
@@ -203,7 +204,7 @@ public class Scanner
 
     }
 
-    private static ScanRepoReportData runScan(String[] cmdArgs){
+    private static ScanRepoReportData runScan(String[] cmdArgs, NVScanner nvScanner){
 
         String errorMessage = runCMD(cmdArgs);
 
@@ -213,10 +214,55 @@ public class Scanner
             reportData = new ScanRepoReportData();
             reportData.setError_message(errorMessage);
         }else{
-            reportData = parseScanReport();
+            reportData = parseScanReport(getScanReportPath(nvScanner.getNvMountPath()));
         }
 
         return reportData;
+    }
+
+    private static String getMountPath(NVScanner nvScanner){
+        String mountPath = ":" + CONTAINER_PATH;
+        String nvPath = nvScanner.getNvMountPath();
+        if( nvPath != null && nvPath.length() > 0){
+            if( nvPath.charAt(nvPath.length() - 1) == '/' ){
+                nvPath = nvPath.substring(0, nvPath.length() - 1);
+            }
+            mountPath = nvPath + mountPath;
+        }else {
+            mountPath = CONTAINER_PATH + mountPath;
+        }
+        return mountPath;
+    }
+
+    private static String getScanReportPath(String path){
+        String scanReportPath = "";
+        if(path == null || path.length() == 0){
+            scanReportPath = CONTAINER_PATH + "/" + SCAN_REPORT;
+        }else{
+            scanReportPath = removeLastSlash(path) + "/" + SCAN_REPORT;
+        }
+
+        return scanReportPath;
+    }
+
+    private static String removeLastSlash(String str){
+        if(str != null && str.length() > 0 && str.charAt(str.length() - 1) == '/'){
+            return str.substring(0, str.length() - 1);
+        }else{
+            return str;
+        }
+    }
+
+    private static String generateScannerName(){
+            String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            StringBuilder salt = new StringBuilder();
+            Random rnd = new Random();
+            while (salt.length() < 6) { // length of the random string.
+                int index = (int) (rnd.nextFloat() * SALTCHARS.length());
+                salt.append(SALTCHARS.charAt(index));
+            }
+            String saltStr = salt.toString();
+            return saltStr;
     }
 
 }
