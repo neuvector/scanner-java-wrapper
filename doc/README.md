@@ -5,11 +5,7 @@ You can call NeuVector Scanner APIs to scan the docker registry or local docker 
 ## Prerequisites for the APIs to work ##
 1. Docker must be installed on the same machine that the NeuVector Scanner APIs is running because these APIs will run "docker run" on the host machine.
 
-```
-docker run --name neuvector.scanner --rm -v "/var/run/docker.sock:/var/run/docker.sock" -v "/var/neuvector:/var/neuvector ... < NeuVector-Scanner-Image >
-```
-
-2. Ensure the folder "/var/neuvector" gets created on the machine and make it writable.
+2. Ensure that you the folder "/var/neuvector" gets created on the machine and make it writable.
 
 3. Have the license to run the NeuVector Scanner
 
@@ -17,6 +13,7 @@ docker run --name neuvector.scanner --rm -v "/var/run/docker.sock:/var/run/docke
 add scanner.jar to your classpath.
 
 1. to scan a local image, you can call the API com.neuvector.Scanner.scanLocalImage() 
+
 ```
     // the name of the local image to be scanned. 
     // For example, you want to scan a local image "localImage:1.0"
@@ -37,7 +34,8 @@ add scanner.jar to your classpath.
     //Login credentials to the Registry
     String nvRegUser = "";
     String nvPassword = "";
-    com.neuvector.model.NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword);
+    String mountPath = "/temp"; //The path to keep the scan report. If you don't assign a value to it, it will use the path "/var/neuvector" by default.
+    com.neuvector.model.NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath);
 
     //NeuVector license to run the Scanner
     String license = "xxx";  
@@ -78,8 +76,9 @@ add scanner.jar to your classpath.
     //Login credentials to the Registry
     String nvRegUser = "";
     String nvPassword = "";
+    String mountPath = "/temp"; //The path to keep the scan report. If you don't assign a value to it, it will use the path "/var/neuvector" by default.
 
-    com.neuvector.model.NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryUrl, nvRegUser, nvPassword);
+    com.neuvector.model.NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryUrl, nvRegUser, nvPassword, mountPath);
 
     // The scan result will be returned as a java bean object
     com.neuvector.model.ScanRepoReportData scanReportData = com.neuvector.Scanner.scanRegistry(registry, scanner, license);
