@@ -1,6 +1,6 @@
 ## NeuVector Security Scanner ##
 
-You can call NeuVector Scanner APIs to scan the docker registry or local docker image. 
+You can call NeuVector Scanner APIs to scan the docker registry or local docker image.
 
 ## Prerequisites for the APIs to work ##
 1. Docker must be installed on the same machine that the NeuVector Scanner APIs is running because these APIs will run "docker run" on the host machine.
@@ -12,7 +12,7 @@ You can call NeuVector Scanner APIs to scan the docker registry or local docker 
 ## Usage of NeuVector Scanner APIs ##
 add scanner.jar to your classpath.
 
-1. to scan a local image, you can call the API com.neuvector.Scanner.scanLocalImage() 
+1. to scan a local image, you can call the API com.neuvector.Scanner.scanLocalImage()
 
 ```
     // the name of the local image to be scanned. 
@@ -34,7 +34,12 @@ add scanner.jar to your classpath.
     //Login credentials to the Registry
     String nvRegUser = "";
     String nvPassword = "";
-    String mountPath = "/temp"; //The path to keep the scan report. If you don't assign a value to it, it will use the path "/var/neuvector" by default.
+    
+    //The path to keep the scan report. 
+    //When run it in Jenkins plugin, you can use the project's build path as the mounting path
+    String mountPath = "/temp"; 
+    
+    // If you don't assign a value to it, it will use the path "/var/neuvector" by default as the mounting path to save the scan report.
     com.neuvector.model.NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath);
 
     //NeuVector license to run the Scanner
@@ -76,8 +81,12 @@ add scanner.jar to your classpath.
     //Login credentials to the Registry
     String nvRegUser = "";
     String nvPassword = "";
-    String mountPath = "/temp"; //The path to keep the scan report. If you don't assign a value to it, it will use the path "/var/neuvector" by default.
 
+    //The path to keep the scan report. 
+    //When run it in Jenkins plugin, you can use the project's build path as the mounting path
+    String mountPath = "/temp"; 
+
+    // If you don't assign a value to it, it will use the path "/var/neuvector" by default as the mounting path to save the scan report.
     com.neuvector.model.NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryUrl, nvRegUser, nvPassword, mountPath);
 
     // The scan result will be returned as a java bean object

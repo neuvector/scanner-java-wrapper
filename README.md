@@ -34,7 +34,13 @@ add scanner.jar to your classpath.
     //Login credentials to the Registry
     String nvRegUser = "";
     String nvPassword = "";
-    String mountPath = "/temp"; //The path to keep the scan report. If you don't assign a value to it, it will use the path "/var/neuvector" by default.
+    
+    //The path to keep the scan report. 
+    //When run it in Jenkins plugin, you can use the project's build path as the mountPath
+    String mountPath = "/temp"; 
+    
+    // If you don't assign a value to it, it will use the default path "/var/neuvector" to save the scan report.
+    // NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword)
     com.neuvector.model.NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath);
 
     //NeuVector license to run the Scanner
