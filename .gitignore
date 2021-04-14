@@ -1,4 +1,8 @@
 .DS_Store
 target/
 .idea/
+doc
 *.iml
+.vscode/
+.settings/
+.project
