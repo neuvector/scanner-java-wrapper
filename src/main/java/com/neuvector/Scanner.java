@@ -136,6 +136,8 @@ public class Scanner
         }else{
             if(nvRegistryURL.contains("//")){
                 nvImagePath = nvRegistryURL.split("//")[1];
+            }else{
+                nvImagePath = nvRegistryURL;
             }
             if(nvRegistryURL.endsWith("/")){
                 nvImagePath = nvImagePath + nvScannerImage;
