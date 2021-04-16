@@ -14,7 +14,7 @@ public class ScanSetIdPerm {
     }
     
     /** 
-     * @param type
+     * @param type String
      */
     public void setType(String type) {
         this.type = type;
@@ -28,7 +28,7 @@ public class ScanSetIdPerm {
     }
     
     /** 
-     * @param evidence
+     * @param evidence String
      */
     public void setEvidence(String evidence) {
         this.evidence = evidence;
@@ -42,7 +42,7 @@ public class ScanSetIdPerm {
     }
     
     /** 
-     * @param path
+     * @param path String
      */
     public void setPath(String path) {
         this.path = path;

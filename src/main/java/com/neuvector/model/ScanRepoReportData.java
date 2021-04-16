@@ -13,7 +13,7 @@ public class ScanRepoReportData {
     }
     
     /** 
-     * @param error_message
+     * @param error_message String
      */
     public void setError_message(String error_message) {
         this.error_message = error_message;
@@ -27,7 +27,7 @@ public class ScanRepoReportData {
     }
     
     /** 
-     * @param report
+     * @param report ScanRepoReport
      */
     public void setReport(ScanRepoReport report) {
         this.report = report;

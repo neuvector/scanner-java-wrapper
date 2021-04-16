@@ -16,7 +16,7 @@ public class ScanModule {
     }
     
     /** 
-     * @param name
+     * @param name String
      */
     public void setName(String name) {
         this.name = name;
@@ -30,7 +30,7 @@ public class ScanModule {
     }
     
     /** 
-     * @param version
+     * @param version String
      */
     public void setVersion(String version) {
         this.version = version;
@@ -44,7 +44,7 @@ public class ScanModule {
     }
     
     /** 
-     * @param source
+     * @param source String
      */
     public void setSource(String source) {
         this.source = source;
@@ -58,7 +58,7 @@ public class ScanModule {
     }
     
     /** 
-     * @param cves
+     * @param cves ModuleCve[]
      */
     public void setCves(ModuleCve[] cves) {
         this.cves = cves;
@@ -72,7 +72,7 @@ public class ScanModule {
     }
     
     /** 
-     * @param cpes
+     * @param cpes String[]
      */
     public void setCpes(String[] cpes) {
         this.cpes = cpes;

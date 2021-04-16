@@ -31,7 +31,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param verdict
+     * @param verdict String
      */
     public void setVerdict(String verdict) {
         this.verdict = verdict;
@@ -45,7 +45,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param image_id
+     * @param image_id String
      */
     public void setImage_id(String image_id) {
         this.image_id = image_id;
@@ -59,7 +59,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param registry
+     * @param registry String
      */
     public void setRegistry(String registry) {
         this.registry = registry;
@@ -73,7 +73,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param repository
+     * @param repository String
      */
     public void setRepository(String repository) {
         this.repository = repository;
@@ -87,7 +87,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param tag
+     * @param tag String
      */
     public void setTag(String tag) {
         this.tag = tag;
@@ -101,7 +101,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param digest
+     * @param digest String
      */
     public void setDigest(String digest) {
         this.digest = digest;
@@ -115,7 +115,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param base_os
+     * @param base_os String
      */
     public void setBase_os(String base_os) {
         this.base_os = base_os;
@@ -129,7 +129,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param cvedb_version
+     * @param cvedb_version String
      */
     public void setCvedb_version(String cvedb_version) {
         this.cvedb_version = cvedb_version;
@@ -143,7 +143,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param cvedb_create_time
+     * @param cvedb_create_time String
      */
     public void setCvedb_create_time(String cvedb_create_time) {
         this.cvedb_create_time = cvedb_create_time;
@@ -157,7 +157,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param layers
+     * @param layers ScanLayer[]
      */
     public void setLayers(ScanLayer[] layers) {
         this.layers = layers;
@@ -171,7 +171,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param vulnerabilities
+     * @param vulnerabilities Vulnerability[]
      */
     public void setVulnerabilities(Vulnerability[] vulnerabilities) {
         this.vulnerabilities = vulnerabilities;
@@ -185,7 +185,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param modules
+     * @param modules ScanModule[]
      */
     public void setModules(ScanModule[] modules) {
         this.modules = modules;
@@ -199,7 +199,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param checks
+     * @param checks BenchItem[]
      */
     public void setChecks(BenchItem[] checks) {
         this.checks = checks;
@@ -213,7 +213,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param secrets
+     * @param secrets ScanSecret[]
      */
     public void setSecrets(ScanSecret[] secrets) {
         this.secrets = secrets;
@@ -227,7 +227,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param setid_perms
+     * @param setid_perms ScanSetIdPerm[]
      */
     public void setSetid_perms(ScanSetIdPerm[] setid_perms) {
         this.setid_perms = setid_perms;
@@ -241,21 +241,21 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param envs
+     * @param envs String[]
      */
     public void setEnvs(String[] envs) {
         this.envs = envs;
     }
     
     /** 
-     * @return Map<String, String>
+     * @return Map&lt;String, String&gt;
      */
     public Map<String, String> getLabels() {
         return labels;
     }
     
     /** 
-     * @param labels
+     * @param labels Map&lt;String, String&gt;
      */
     public void setLabels(Map<String, String> labels) {
         this.labels = labels;
@@ -269,7 +269,7 @@ public class ScanRepoReport {
     }
     
     /** 
-     * @param cmds
+     * @param cmds String[]
      */
     public void setCmds(String[] cmds) {
         this.cmds = cmds;

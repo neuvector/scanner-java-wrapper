@@ -13,7 +13,7 @@ public class ModuleCve {
     }
     
     /** 
-     * @param name
+     * @param name String
      */
     public void setName(String name) {
         this.name = name;
@@ -27,7 +27,7 @@ public class ModuleCve {
     }
     
     /** 
-     * @param status
+     * @param status String
      */
     public void setStatus(String status) {
         this.status = status;

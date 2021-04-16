@@ -15,7 +15,7 @@ public class ScanLayer {
     }
     
     /** 
-     * @param digest
+     * @param digest String
      */
     public void setDigest(String digest) {
         this.digest = digest;
@@ -29,7 +29,7 @@ public class ScanLayer {
     }
     
     /** 
-     * @param cmds
+     * @param cmds String
      */
     public void setCmds(String cmds) {
         this.cmds = cmds;
@@ -43,7 +43,7 @@ public class ScanLayer {
     }
     
     /** 
-     * @param size
+     * @param size long
      */
     public void setSize(long size) {
         this.size = size;
@@ -57,7 +57,7 @@ public class ScanLayer {
     }
     
     /** 
-     * @param vulnerabilities
+     * @param vulnerabilities Vulnerability[]
      */
     public void setVulnerabilities(Vulnerability[] vulnerabilities) {
         this.vulnerabilities = vulnerabilities;

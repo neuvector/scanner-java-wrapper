@@ -24,7 +24,7 @@ public class BenchItem{
     }
     
     /** 
-     * @param level
+     * @param level String
      */
     public void setLevel(String level) {
         this.level = level;
@@ -38,7 +38,7 @@ public class BenchItem{
     }
     
     /** 
-     * @param evidence
+     * @param evidence String
      */
     public void setEvidence(String evidence) {
         this.evidence = evidence;
@@ -52,7 +52,7 @@ public class BenchItem{
     }
     
     /** 
-     * @param location
+     * @param location String
      */
     public void setLocation(String location) {
         this.location = location;
@@ -66,7 +66,7 @@ public class BenchItem{
     }
     
     /** 
-     * @param message
+     * @param message String[]
      */
     public void setMessage(String[] message) {
         this.message = message;
@@ -80,7 +80,7 @@ public class BenchItem{
     }
     
     /** 
-     * @param group
+     * @param group String
      */
     public void setGroup(String group) {
         this.group = group;
@@ -94,7 +94,7 @@ public class BenchItem{
     }
     
     /** 
-     * @param test_number
+     * @param test_number String
      */
     public void setTest_number(String test_number) {
         this.test_number = test_number;
@@ -108,7 +108,7 @@ public class BenchItem{
     }
     
     /** 
-     * @param catalog
+     * @param catalog String
      */
     public void setCatalog(String catalog) {
         this.catalog = catalog;
@@ -122,7 +122,7 @@ public class BenchItem{
     }
     
     /** 
-     * @param type
+     * @param type String
      */
     public void setType(String type) {
         this.type = type;
@@ -136,7 +136,7 @@ public class BenchItem{
     }
     
     /** 
-     * @param profile
+     * @param profile String
      */
     public void setProfile(String profile) {
         this.profile = profile;
@@ -150,7 +150,7 @@ public class BenchItem{
     }
     
     /** 
-     * @param scored
+     * @param scored boolean
      */
     public void setScored(boolean scored) {
         this.scored = scored;
@@ -164,7 +164,7 @@ public class BenchItem{
     }
     
     /** 
-     * @param description
+     * @param description String
      */
     public void setDescription(String description) {
         this.description = description;
@@ -178,7 +178,7 @@ public class BenchItem{
     }
     
     /** 
-     * @param remediation
+     * @param remediation String
      */
     public void setRemediation(String remediation) {
         this.remediation = remediation;
@@ -192,7 +192,7 @@ public class BenchItem{
     }
     
     /** 
-     * @param tags
+     * @param tags String[]
      */
     public void setTags(String[] tags) {
         this.tags = tags;
