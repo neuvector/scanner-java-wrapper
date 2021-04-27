@@ -25,9 +25,10 @@ public class ScannerTest
         String nvRegistryUser = "xxx";
         String nvRegistryPassword = "xxx";
         String nvRegistryURL = "https://registry.hub.docker.com";
+        String mountPath = "/temp";  //mountPath is an optional parameter. It will use "/var/neuvector" by default.
 
         Image image = new Image(imageName, imageTag);
-        NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword);
+        NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath);
 
         ScanRepoReportData scanReportData = Scanner.scanLocalImage(image,scanner,license);
         assertTrue( scanReportData != null );
