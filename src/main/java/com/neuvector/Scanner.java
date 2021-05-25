@@ -9,11 +9,9 @@ import java.nio.file.Paths;
 import java.util.Random;
 import java.util.stream.Stream;
 
-import com.neuvector.model.Image;
-import com.neuvector.model.NVScanner;
-import com.neuvector.model.Registry;
-import com.neuvector.model.ScanRepoReportData;
-import net.sf.json.JSONObject;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.neuvector.model.*;
 
 /**
  * NeuVector Scanner APIs can scan security vulnerabilities of the local docker image or the docker registry. 
@@ -200,8 +198,7 @@ public class Scanner
             scanReportData = new ScanRepoReportData();
             scanReportData.setError_message(errorMessage);
         }else{
-            JSONObject jsonObject = JSONObject.fromObject(contentBuilder.toString());
-            scanReportData = (ScanRepoReportData) JSONObject.toBean(jsonObject, ScanRepoReportData.class);
+            scanReportData = new Gson().fromJson(contentBuilder.toString(), ScanRepoReportData.class);
         }
 
         return scanReportData;
