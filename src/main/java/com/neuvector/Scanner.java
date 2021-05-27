@@ -10,7 +10,6 @@ import java.util.Random;
 import java.util.stream.Stream;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.neuvector.model.*;
 
 /**
@@ -55,10 +54,10 @@ public class Scanner
         }else{
             if( scanLayers ) {
                 String[] cmdArgs = {"docker", "run", "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), "-e", "SCANNER_REGISTRY_USERNAME=" + registry.getLoginUser(), "-e", "SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword() , "-e", "SCANNER_SCAN_LAYERS=true", getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
-                reportData = runScan(cmdArgs, nvScanner);
+                reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), license);
             }else {
                 String[] cmdArgs = {"docker", "run", "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), "-e", "SCANNER_REGISTRY_USERNAME=" + registry.getLoginUser(), "-e", "SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword() , getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
-                reportData = runScan(cmdArgs, nvScanner);
+                reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), license);
             }
 
         }
@@ -103,10 +102,10 @@ public class Scanner
         }else{
             if( scanLayers ){
                 String[] cmdArgs = {"docker", "run", "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + image.getImageName(), "-e", "SCANNER_TAG=" + image.getImageTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_SCAN_LAYERS=true", getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
-                reportData = runScan(cmdArgs, nvScanner);
+                reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), license);
             }else{
                 String[] cmdArgs = {"docker", "run", "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + image.getImageName(), "-e", "SCANNER_TAG=" + image.getImageTag(), "-e", "SCANNER_LICENSE=" + license, getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
-                reportData = runScan(cmdArgs, nvScanner);
+                reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), license);
             }
         }
 
@@ -157,6 +156,11 @@ public class Scanner
         }else{
             String[] cmdArgsDockPull = {"docker", "pull", getNVImagePath(nvScannerImage, nvRegistryURL)};
             errorMessage = runCMD(cmdArgsDockPull);
+        }
+
+        // mask the password in the error message
+        if(! (errorMessage.isEmpty() || nvRegistryPassword.isEmpty()) ){
+            errorMessage = maskCredential(errorMessage, nvRegistryPassword);
         }
 
         return errorMessage;
@@ -240,17 +244,20 @@ public class Scanner
 
     }
 
-    private static ScanRepoReportData runScan(String[] cmdArgs, NVScanner nvScanner){
+    private static ScanRepoReportData runScan(String[] cmdArgs, String scanReportPath, String license){
 
         String errorMessage = runCMD(cmdArgs);
 
         ScanRepoReportData reportData = null;
 
         if(errorMessage.length() > 0){
+            if(!license.isEmpty()){
+                errorMessage = maskCredential(errorMessage, license);
+            }
             reportData = new ScanRepoReportData();
             reportData.setError_message(errorMessage);
         }else{
-            reportData = parseScanReport(getScanReportPath(nvScanner.getNvMountPath()));
+            reportData = parseScanReport(getScanReportPath(scanReportPath));
         }
 
         return reportData;
@@ -299,6 +306,10 @@ public class Scanner
             }
             String saltStr = salt.toString();
             return saltStr;
+    }
+
+    private static String maskCredential(String message, String credential){
+        return message.replace(credential, "******");
     }
 
 }
