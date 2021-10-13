@@ -317,4 +317,11 @@ public class Scanner
         return message.replace(credential, "******");
     }
 
+    public static String deleteDockerImagesByLabelKey(String label) {
+        String errorMessage = "";
+        String[] cmdArgsDockerDelete = {"docker", "image", "prune", "--force", "--filter=label=".concat(label)};
+        errorMessage = runCMD(cmdArgsDockerDelete);
+        return errorMessage;
+    }
+
 }
