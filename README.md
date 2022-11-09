@@ -1,4 +1,4 @@
-## NeuVector Security Scanner ##
+## NeuVector Security Scanner Integration Module ##
 
 You can call NeuVector Scanner APIs to scan the docker registry or local docker image. 
 
