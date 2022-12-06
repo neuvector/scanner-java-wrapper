@@ -6,12 +6,12 @@
 
   <groupId>com.neuvector</groupId>
   <artifactId>scanner</artifactId>
-  <version>1.7</version>
+  <version>1.8-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>NeuVector Scanner API</name>
   <description>The NeuVector Scanner API is a Java toolkit for scanning docker repositories and docker images.</description>
-  <url>https://github.com/songlongcn/scanner</url>
+  <url>https://github.com/sonatype/neuvector-scanner/</url>
 
   <licenses>
     <license>
@@ -19,21 +19,6 @@
       <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
     </license>
   </licenses>
-
-  <developers>
-    <developer>
-      <name>Long Song</name>
-      <email>maintainer@neuvector.com</email>
-      <organization>NeuVector.com</organization>
-      <organizationUrl>https://www.neuvector.com</organizationUrl>
-    </developer>
-  </developers>
-
-  <scm>
-    <connection>scm:git:git://github.com/songlongcn/scanner.git</connection>
-    <developerConnection>scm:git:ssh://github.com/songlongcn/scanner.git</developerConnection>
-    <url>http://github.com/songlongcn/scanner/tree/master</url>
-  </scm>
 
   <dependencies>
     <dependency>
@@ -49,17 +34,6 @@
     </dependency>
   </dependencies>
 
-  <distributionManagement>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-    <repository>
-      <id>ossrh</id>
-      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-  </distributionManagement>
-
   <build>
     <plugins>
       <plugin>
@@ -69,18 +43,6 @@
         <configuration>
           <source>1.8</source>
           <target>1.8</target>
-        </configuration>
-      </plugin>
-
-      <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.6.7</version>
-        <extensions>true</extensions>
-        <configuration>
-          <serverId>ossrh</serverId>
-          <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>false</autoReleaseAfterClose>
         </configuration>
       </plugin>
 
@@ -111,22 +73,6 @@
           </execution>
         </executions>
       </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-gpg-plugin</artifactId>
-        <version>1.6</version>
-        <executions>
-          <execution>
-            <id>sign-artifacts</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
     </plugins>
   </build>
 
