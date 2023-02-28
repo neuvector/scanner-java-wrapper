@@ -39,8 +39,7 @@ public class ScannerTest
         FileOwnerAttributeView fileOwner = Files.getFileAttributeView(path,
                 FileOwnerAttributeView.class);
         UserPrincipal user = fileOwner.getOwner();
-        InetAddress addr;
-        addr = InetAddress.getLocalHost();
+        InetAddress addr = InetAddress.getLocalHost();;
         String hostname = addr.getHostName();
 
         Image image = new Image(imageName, imageTag);
@@ -75,8 +74,7 @@ public class ScannerTest
         FileOwnerAttributeView fileOwner = Files.getFileAttributeView(path,
                 FileOwnerAttributeView.class);
         UserPrincipal user = fileOwner.getOwner();
-        InetAddress addr;
-        addr = InetAddress.getLocalHost();
+        InetAddress addr = InetAddress.getLocalHost();;
         String hostname = addr.getHostName();
 
         Registry registry = new Registry(registryURL, regUser, regPassword,repository,repositoryTag);
