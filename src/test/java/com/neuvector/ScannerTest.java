@@ -12,7 +12,6 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,8 +30,8 @@ public class ScannerTest
         String imageName = "songlongtj/alpine";
         String imageTag = "3.6";
         String nvScannerImage = "neuvector/scanner:latest";
-        String nvRegistryUser = "";
-        String nvRegistryPassword = "";
+        String nvRegistryUser = "xxx";
+        String nvRegistryPassword = "xxx";
         String nvRegistryURL = "https://registry.hub.docker.com";
         String mountPath = "/temp";  //mountPath is an optional parameter. It will use "/var/neuvector" by default.
         File file = new File(mountPath + "/scan_result.json");
@@ -68,8 +67,8 @@ public class ScannerTest
         String repositoryTag = "3.6";
         String nvScannerImage = "neuvector/scanner:latest";
         String nvRegistryURL = registryURL;
-        String nvRegistryUser = "";
-        String nvRegistryPassword = "";
+        String nvRegistryUser = "xxx";
+        String nvRegistryPassword = "xxx";
         String mountPath = "/temp";  //mountPath is an optional parameter. It will use "/var/neuvector" by default.
         File file = new File(mountPath + "/scan_result.json");
         Path path = Paths.get(mountPath + "/scan_result.json");
