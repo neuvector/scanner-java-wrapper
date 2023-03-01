@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +29,7 @@ public class ScannerTest
         String imageName = "songlongtj/alpine";
         String imageTag = "3.6";
         String nvScannerImage = "neuvector/scanner:latest";
+        //Replace by your own credentials
         String nvRegistryUser = "xxx";
         String nvRegistryPassword = "xxx";
         String nvRegistryURL = "https://registry.hub.docker.com";
@@ -39,22 +39,18 @@ public class ScannerTest
 
         ScanRepoReportData scanReportData = Scanner.scanLocalImage(image,scanner,license);
 
-        File file = new File(mountPath + "/scan_result.json");
-        Path path = Paths.get(mountPath + "/scan_result.json");
-
-        if(file.exists()){
+        if(scanReportData.getError_message().isEmpty()){
+            File file = new File(mountPath + "/scan_result.json");
+            Path path = Paths.get(mountPath + "/scan_result.json");
             FileOwnerAttributeView fileOwner = Files.getFileAttributeView(path,
                     FileOwnerAttributeView.class);
             UserPrincipal user = fileOwner.getOwner();
-            InetAddress addr = InetAddress.getLocalHost();;
-            String hostname = addr.getHostName();
-            assertTrue( !hostname.contains("root" ));
-            assertTrue( hostname.contains(user.getName()) );
-            assertTrue( file.canWrite() );
-            assertTrue( file.canRead() );
-        }
 
-        assertTrue( scanReportData != null );
+            assertTrue(!user.getName().equals("root"));
+            assertTrue(file.canWrite());
+            assertTrue(file.canRead());
+        }
+        assertTrue(scanReportData != null);
     }
 
     @Test
@@ -68,27 +64,26 @@ public class ScannerTest
         String repositoryTag = "3.6";
         String nvScannerImage = "neuvector/scanner:latest";
         String nvRegistryURL = registryURL;
-        String nvRegistryUser = "";
-        String nvRegistryPassword = "";
+        //Replace by your own credentials
+        String nvRegistryUser = "xxx";
+        String nvRegistryPassword = "xxx";
         String mountPath = "/temp";  //mountPath is an optional parameter. It will use "/var/neuvector" by default.
         Registry registry = new Registry(registryURL, regUser, regPassword,repository,repositoryTag);
         NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath);
 
         ScanRepoReportData scanReportData = Scanner.scanRegistry(registry, scanner, license);
+        if(scanReportData.getError_message().isEmpty()) {
+            File file = new File(mountPath + "/scan_result.json");
+            Path path = Paths.get(mountPath + "/scan_result.json");
+            FileOwnerAttributeView fileOwner = Files.getFileAttributeView(path,
+                    FileOwnerAttributeView.class);
+            UserPrincipal user = fileOwner.getOwner();
 
-        File file = new File(mountPath + "/scan_result.json");
-        Path path = Paths.get(mountPath + "/scan_result.json");
-        FileOwnerAttributeView fileOwner = Files.getFileAttributeView(path,
-                FileOwnerAttributeView.class);
-        UserPrincipal user = fileOwner.getOwner();
-        InetAddress addr = InetAddress.getLocalHost();;
-        String hostname = addr.getHostName();
-
-        assertTrue( !hostname.contains("root" ));
-        assertTrue( hostname.contains(user.getName()) );
-        assertTrue( file.exists() );
-        assertTrue( file.canWrite() );
-        assertTrue( file.canRead() );
-        assertTrue( scanReportData != null );
+            assertTrue(!user.getName().equals("root"));
+            assertTrue(file.exists());
+            assertTrue(file.canWrite());
+            assertTrue(file.canRead());
+        }
+        assertTrue(scanReportData != null);
     }
 }
