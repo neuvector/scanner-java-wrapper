@@ -1,16 +1,19 @@
 package com.neuvector;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.Stream;
 
 import com.google.gson.Gson;
 import com.neuvector.model.*;
+
 
 /**
  * NeuVector Scanner APIs can scan security vulnerabilities of the local docker image or the docker registry. 
@@ -44,7 +47,7 @@ public class Scanner
             errorMessage = "The Registry and nvScanner can't be null.";
         }
 
-        String dockerUserAndGroup = getDockerUserAndGroup();
+        String dockerGroupCmdArgs[] = getDockerGroupCmdArgs(getScanReportPath(nvScanner.getNvMountPath()));
 
         errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
         ScanRepoReportData reportData = null;
@@ -56,20 +59,20 @@ public class Scanner
             String[] credentials = {registry.getLoginPassword(), license};
             if( scanLayers ) {
                 if (registry.getLoginUser() == null && registry.getLoginPassword() == null) {
-                    String[] cmdArgs = {"docker", "run", "-u", dockerUserAndGroup, "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), "-e", "SCANNER_SCAN_LAYERS=true", getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
+                    String[] cmdArgs = {"docker", "run", dockerGroupCmdArgs[0], dockerGroupCmdArgs[1], "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), "-e", "SCANNER_SCAN_LAYERS=true", getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
                     reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
                 }
                 else {
-                    String[] cmdArgs = {"docker", "run", "-u", dockerUserAndGroup, "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), "-e", "SCANNER_REGISTRY_USERNAME=" + registry.getLoginUser(), "-e", "SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword() , "-e", "SCANNER_SCAN_LAYERS=true", getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
+                    String[] cmdArgs = {"docker", "run", dockerGroupCmdArgs[0], dockerGroupCmdArgs[1], "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), "-e", "SCANNER_REGISTRY_USERNAME=" + registry.getLoginUser(), "-e", "SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword() , "-e", "SCANNER_SCAN_LAYERS=true", getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
                     reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
                 }
             }else {
                 if (registry.getLoginUser() == null && registry.getLoginPassword() == null) {
-                    String[] cmdArgs = {"docker", "run", "-u", dockerUserAndGroup, "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
+                    String[] cmdArgs = {"docker", "run", dockerGroupCmdArgs[0], dockerGroupCmdArgs[1], "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
                     reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
                 }
                 else {
-                    String[] cmdArgs = {"docker", "run", "-u", dockerUserAndGroup, "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), "-e", "SCANNER_REGISTRY_USERNAME=" + registry.getLoginUser(), "-e", "SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword() , getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
+                    String[] cmdArgs = {"docker", "run", dockerGroupCmdArgs[0], dockerGroupCmdArgs[1], "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), "-e", "SCANNER_REGISTRY_USERNAME=" + registry.getLoginUser(), "-e", "SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword() , getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
                     reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
                 }
             }
@@ -107,8 +110,7 @@ public class Scanner
             errorMessage = "The image and nvScanner can't be null.";
         }
 
-        String dockerUserAndGroup = getDockerUserAndGroup();
-
+        String dockerGroupCmdArgs[] = getDockerGroupCmdArgs(getScanReportPath(nvScanner.getNvMountPath()));
         errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
         ScanRepoReportData reportData = null;
 
@@ -118,10 +120,10 @@ public class Scanner
         }else{
             String[] credentials = {license};
             if( scanLayers ){
-                String[] cmdArgs = {"docker", "run", "-u", dockerUserAndGroup, "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + image.getImageName(), "-e", "SCANNER_TAG=" + image.getImageTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_SCAN_LAYERS=true", getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
+                String[] cmdArgs = {"docker", "run", dockerGroupCmdArgs[0], dockerGroupCmdArgs[1], "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + image.getImageName(), "-e", "SCANNER_TAG=" + image.getImageTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_SCAN_LAYERS=true", getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
                 reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
             }else{
-                String[] cmdArgs = {"docker", "run", "-u", dockerUserAndGroup, "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + image.getImageName(), "-e", "SCANNER_TAG=" + image.getImageTag(), "-e", "SCANNER_LICENSE=" + license, getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
+                String[] cmdArgs = {"docker", "run", dockerGroupCmdArgs[0], dockerGroupCmdArgs[1], "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + image.getImageName(), "-e", "SCANNER_TAG=" + image.getImageTag(), "-e", "SCANNER_LICENSE=" + license, getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
                 reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
             }
         }
@@ -261,7 +263,11 @@ public class Scanner
 
     }
 
-    private static ScanRepoReportData runScan(String[] cmdArgs, String scanReportPath, String[] credentials){
+    private static ScanRepoReportData runScan(String[] cmdArgs, String scanReportPath, String[] credentials) {
+        if (scanResultsFileExist(getScanReportPath(scanReportPath))) {
+            //we need to clean the empty args
+            cmdArgs = Arrays.stream(cmdArgs).filter(s -> !s.isEmpty()).toArray(String[]::new);
+        }
 
         String errorMessage = runCMD(cmdArgs);
 
@@ -332,13 +338,17 @@ public class Scanner
         return message.replace(credential, "******");
     }
 
-    private static String getDockerUserAndGroup() {
-        String user = executeBashCommand("id -u");
-        String group = executeBashCommand("id -g");
-        return String.format("%s:%s", user,group);
+    static String[] getDockerGroupCmdArgs(String scanReportPath) {
+         String[] cmdArgs = {"", ""};
+        if (!scanResultsFileExist(scanReportPath)) {
+            cmdArgs[0] = "-u";
+            cmdArgs [1] = executeCommand("id -g");
+            return cmdArgs;
+        }
+        return cmdArgs;
     }
 
-    private static String executeBashCommand(String command) {
+    private static String executeCommand(String command) {
         StringBuilder output = new StringBuilder();
         try {
             String line = "";
@@ -351,10 +361,17 @@ public class Scanner
                 output.append(line);
             }
             proc.waitFor();
+            reader.close();
         } catch (Exception e) {
         }
         return output.toString();
     }
+
+    private static boolean scanResultsFileExist(String scanReportPath) {
+        File file = new File(scanReportPath);
+        return file.exists();
+    }
+
 
     public static String deleteDockerImagesByLabelKey(String label) {
         String errorMessage = "";
