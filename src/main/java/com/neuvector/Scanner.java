@@ -339,32 +339,34 @@ public class Scanner
     }
 
     static String[] getDockerGroupCmdArgs(String scanReportPath) {
-         String[] cmdArgs = {"", ""};
+        String[] cmdGroupArgs = {"", ""};
         if (!scanResultsFileExist(scanReportPath)) {
-            cmdArgs[0] = "-u";
-            cmdArgs [1] = executeCommand("id -g");
-            return cmdArgs;
+            cmdGroupArgs[0] = "-u";
+            cmdGroupArgs[1] = executeCommand("id -g");
+            return cmdGroupArgs;
         }
-        return cmdArgs;
+        return cmdGroupArgs;
     }
 
     private static String executeCommand(String command) {
         StringBuilder output = new StringBuilder();
         try {
-            String line = "";
             Process proc = Runtime.getRuntime().exec(command);
-            // Read the output
-            BufferedReader reader =
-                    new BufferedReader(new InputStreamReader(proc.getInputStream()));
+            getExecValueFromBuffer(output, proc);
+        } catch (Exception e) {
+        }
+        return output.toString();
+    }
 
+    private static void getExecValueFromBuffer(StringBuilder output, Process proc) throws IOException, InterruptedException {
+        String line;
+        try (BufferedReader reader =
+                     new BufferedReader(new InputStreamReader(proc.getInputStream()))) {
             while ((line = reader.readLine()) != null) {
                 output.append(line);
             }
             proc.waitFor();
-            reader.close();
-        } catch (Exception e) {
         }
-        return output.toString();
     }
 
     private static boolean scanResultsFileExist(String scanReportPath) {
