@@ -6,7 +6,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileOwnerAttributeView;
+import java.nio.file.attribute.UserPrincipal;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.Stream;
@@ -264,7 +267,7 @@ public class Scanner
     }
 
     private static ScanRepoReportData runScan(String[] cmdArgs, String scanReportPath, String[] credentials) {
-        if (scanResultsFileExist(getScanReportPath(scanReportPath))) {
+        if (isRootFile(getScanReportPath(scanReportPath))) {
             //we need to clean the empty args
             cmdArgs = Arrays.stream(cmdArgs).filter(s -> !s.isEmpty()).toArray(String[]::new);
         }
@@ -340,12 +343,21 @@ public class Scanner
 
     static String[] getDockerGroupCmdArgs(String scanReportPath) {
         String[] cmdGroupArgs = {"", ""};
-        if (!scanResultsFileExist(scanReportPath)) {
+        if (!scanResultsFileExist(scanReportPath) || !isRootFile(scanReportPath)) {
             cmdGroupArgs[0] = "-u";
-            cmdGroupArgs[1] = executeCommand("id -g");
+            cmdGroupArgs[1] = executeCommand("id -u");
             return cmdGroupArgs;
         }
         return cmdGroupArgs;
+    }
+
+    private static boolean isRootFile(String scanReportPath)  {
+        File file = new File(scanReportPath);
+        try {
+            return scanResultsFileExist(scanReportPath) && getUserPrincipal(scanReportPath, file).getName().equals("root");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static String executeCommand(String command) {
@@ -372,6 +384,17 @@ public class Scanner
     private static boolean scanResultsFileExist(String scanReportPath) {
         File file = new File(scanReportPath);
         return file.exists();
+    }
+
+    private static UserPrincipal getUserPrincipal(String mountPath, File file) throws IOException {
+        UserPrincipal user = null;
+        if (file.exists()) {
+            Path path = Paths.get(mountPath);
+            FileOwnerAttributeView fileOwner = Files.getFileAttributeView(path,
+                    FileOwnerAttributeView.class);
+            user = fileOwner.getOwner();
+        }
+        return user;
     }
 
 
