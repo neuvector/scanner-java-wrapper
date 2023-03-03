@@ -42,7 +42,7 @@ public class ScannerTest
         File file = new File(mountPath + "/scan_result.json");
         UserPrincipal user = getUserPrincipal(mountPath, file);
 
-        assertTrue(user.getName().equals("root") || user.getName().contains(System.getProperty("user.name")));
+        assertTrue(!user.getName().equals("root") );
         assertTrue( scanReportData != null );
     }
 
@@ -69,7 +69,7 @@ public class ScannerTest
         File file = new File(mountPath + "/scan_result.json");
         UserPrincipal user = getUserPrincipal(mountPath, file);
 
-        assertTrue(user.getName().equals("root") || user.getName().contains(System.getProperty("user.name")));
+        assertTrue(!user.getName().equals("root") );
         assertTrue( scanReportData != null );
     }
 
