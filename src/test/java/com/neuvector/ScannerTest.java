@@ -39,8 +39,7 @@ public class ScannerTest
 
         ScanRepoReportData scanReportData = Scanner.scanLocalImage(image,scanner,license);
 
-        File file = new File(mountPath + "/scan_result.json");
-        UserPrincipal user = getUserPrincipal(mountPath, file);
+        UserPrincipal user = getUserPrincipal(mountPath);
 
         assertTrue(!user.getName().equals("root") );
         assertTrue( scanReportData != null );
@@ -66,14 +65,13 @@ public class ScannerTest
 
         ScanRepoReportData scanReportData = Scanner.scanRegistry(registry, scanner, license);
 
-        File file = new File(mountPath + "/scan_result.json");
-        UserPrincipal user = getUserPrincipal(mountPath, file);
+        UserPrincipal user = getUserPrincipal(mountPath);
 
         assertTrue(!user.getName().equals("root") );
         assertTrue( scanReportData != null );
     }
 
-    private static UserPrincipal getUserPrincipal(String mountPath, File file) throws IOException {
+    private static UserPrincipal getUserPrincipal(String mountPath) throws IOException {
         UserPrincipal user = null;
         Path path = Paths.get(mountPath + "/scan_result.json");
         FileOwnerAttributeView fileOwner = Files.getFileAttributeView(path,
