@@ -75,12 +75,10 @@ public class ScannerTest
 
     private static UserPrincipal getUserPrincipal(String mountPath, File file) throws IOException {
         UserPrincipal user = null;
-        if (file.exists()) {
-            Path path = Paths.get(mountPath + "/scan_result.json");
-            FileOwnerAttributeView fileOwner = Files.getFileAttributeView(path,
-                    FileOwnerAttributeView.class);
-            user = fileOwner.getOwner();
-        }
+        Path path = Paths.get(mountPath + "/scan_result.json");
+        FileOwnerAttributeView fileOwner = Files.getFileAttributeView(path,
+                FileOwnerAttributeView.class);
+        user = fileOwner.getOwner();
         return user;
     }
 }
