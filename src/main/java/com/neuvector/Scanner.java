@@ -267,9 +267,10 @@ public class Scanner
     }
 
     private static ScanRepoReportData runScan(String[] cmdArgs, String scanReportPath, String[] credentials) {
-        if (isRootFile(getScanReportPath(scanReportPath))) {
+        Boolean isRootFile = isRootFile(getScanReportPath(scanReportPath));
+        if (isRootFile == null || isRootFile) {
             //we need to clean the empty args
-            //cmdArgs = Arrays.stream(cmdArgs).filter(s -> !s.isEmpty()).toArray(String[]::new);
+            cmdArgs = Arrays.stream(cmdArgs).filter(s -> !s.isEmpty()).toArray(String[]::new);
         }
 
         String errorMessage = runCMD(cmdArgs);
@@ -350,12 +351,12 @@ public class Scanner
         return cmdGroupArgs;
     }
 
-    private static boolean isRootFile(String scanReportPath)  {
+    private static Boolean isRootFile(String scanReportPath)  {
         File scanResultFileJson = new File(scanReportPath);
         try {
             return scanResultsFileExist(scanReportPath) && getUserPrincipal(scanReportPath, scanResultFileJson).getName().equals("root");
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
