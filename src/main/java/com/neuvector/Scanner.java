@@ -344,9 +344,10 @@ public class Scanner
 
     static String[] getDockerGroupCmdArgs(String scanReportPath) {
         String[] cmdGroupArgs = {"", ""};
-        if (!scanResultsFileExist(scanReportPath) || !isRootFile(scanReportPath)) {
+        String UID = executeCommand("id -u");
+        if (!scanResultsFileExist(scanReportPath) || !isRootFile(scanReportPath) && (UID!= null && !UID.isEmpty())) {
             cmdGroupArgs[0] = "-u";
-            cmdGroupArgs[1] = executeCommand("id -u");
+            cmdGroupArgs[1] = UID;
         }
         return cmdGroupArgs;
     }
@@ -366,6 +367,7 @@ public class Scanner
             Process proc = Runtime.getRuntime().exec(command);
             getExecValueFromBuffer(output, proc);
         } catch (Exception e) {
+            return null;
         }
         return output.toString();
     }
