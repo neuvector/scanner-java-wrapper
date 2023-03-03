@@ -341,15 +341,22 @@ public class Scanner
 
     static String[] getDockerGroupCmdArgs(String scanReportPath) {
         String[] cmdGroupArgs = {"", ""};
+
+        // no user arg if file exists and it is owned by root
+        Boolean ownedByRoot = ownedByRoot(scanReportPath);
+        if (scanResultsFileExist(scanReportPath) && ownedByRoot != null && ownedByRoot) {
+            return cmdGroupArgs;
+        }
+
         String UID = executeCommand("id -u");
-        if (!scanResultsFileExist(scanReportPath) || !isRootFile(scanReportPath) && (UID!= null && !UID.isEmpty())) {
+        if ((UID != null && !UID.isEmpty())) {
             cmdGroupArgs[0] = "-u";
             cmdGroupArgs[1] = UID;
         }
         return cmdGroupArgs;
     }
 
-    private static Boolean isRootFile(String scanReportPath)  {
+    private static Boolean ownedByRoot(String scanReportPath)  {
         File scanResultFileJson = new File(scanReportPath);
         try {
             return scanResultsFileExist(scanReportPath) && getUserPrincipal(scanReportPath, scanResultFileJson).getName().equals("root");
