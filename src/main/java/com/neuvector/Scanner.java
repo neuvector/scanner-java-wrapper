@@ -50,7 +50,7 @@ public class Scanner
             errorMessage = "The Registry and nvScanner can't be null.";
         }
 
-        String dockerGroupCmdArgs[] = getDockerGroupCmdArgs(getScanReportPath(nvScanner.getNvMountPath()));
+        String[] dockerGroupCmdArgs = getDockerGroupCmdArgs(getScanReportPath(nvScanner.getNvMountPath()));
 
         errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
         ScanRepoReportData reportData = null;
@@ -113,7 +113,7 @@ public class Scanner
             errorMessage = "The image and nvScanner can't be null.";
         }
 
-        String dockerGroupCmdArgs[] = getDockerGroupCmdArgs(getScanReportPath(nvScanner.getNvMountPath()));
+        String[] dockerGroupCmdArgs = getDockerGroupCmdArgs(getScanReportPath(nvScanner.getNvMountPath()));
         errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
         ScanRepoReportData reportData = null;
 
@@ -269,7 +269,7 @@ public class Scanner
     private static ScanRepoReportData runScan(String[] cmdArgs, String scanReportPath, String[] credentials) {
         if (isRootFile(getScanReportPath(scanReportPath))) {
             //we need to clean the empty args
-            cmdArgs = Arrays.stream(cmdArgs).filter(s -> !s.isEmpty()).toArray(String[]::new);
+            //cmdArgs = Arrays.stream(cmdArgs).filter(s -> !s.isEmpty()).toArray(String[]::new);
         }
 
         String errorMessage = runCMD(cmdArgs);
@@ -346,15 +346,14 @@ public class Scanner
         if (!scanResultsFileExist(scanReportPath) || !isRootFile(scanReportPath)) {
             cmdGroupArgs[0] = "-u";
             cmdGroupArgs[1] = executeCommand("id -u");
-            return cmdGroupArgs;
         }
         return cmdGroupArgs;
     }
 
     private static boolean isRootFile(String scanReportPath)  {
-        File file = new File(scanReportPath);
+        File scanResultFileJson = new File(scanReportPath);
         try {
-            return scanResultsFileExist(scanReportPath) && getUserPrincipal(scanReportPath, file).getName().equals("root");
+            return scanResultsFileExist(scanReportPath) && getUserPrincipal(scanReportPath, scanResultFileJson).getName().equals("root");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
