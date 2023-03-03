@@ -267,11 +267,8 @@ public class Scanner
     }
 
     private static ScanRepoReportData runScan(String[] cmdArgs, String scanReportPath, String[] credentials) {
-        Boolean isRootFile = isRootFile(getScanReportPath(scanReportPath));
-        if (isRootFile == null || isRootFile) {
-            //we need to clean the empty args
-            cmdArgs = Arrays.stream(cmdArgs).filter(s -> !s.isEmpty()).toArray(String[]::new);
-        }
+        //we need to clean the empty args
+        cmdArgs = Arrays.stream(cmdArgs).filter(s -> !s.isEmpty()).toArray(String[]::new);
 
         String errorMessage = runCMD(cmdArgs);
 
