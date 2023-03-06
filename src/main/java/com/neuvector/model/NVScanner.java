@@ -6,6 +6,7 @@ public class NVScanner {
     String nvRegistryUser;
     String nvRegistryPassword;
     String nvMountPath;
+    Boolean scanWithNotRootUser;
     
     public NVScanner(){}
 
@@ -30,12 +31,13 @@ public class NVScanner {
      * @param nvRegistryPassword The password to login the registry.
      * @param nvMountPath  The mount path mapping to the path inside the NeuVector Scanner container. It is the path to store the scan result. It is optional. If you don't pass in <code>nvMountPath</code>, it will use the default path "/var/neuvector"
      */
-    public NVScanner(String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword, String nvMountPath){
+    public NVScanner(String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword, String nvMountPath, Boolean scanWithNotRootUser){
         this.nvRegistryURL = nvRegistryURL;
         this.nvScannerImage = nvScannerImage;
         this.nvRegistryUser = nvRegistryUser;
         this.nvRegistryPassword = nvRegistryPassword;
         this.nvMountPath = nvMountPath;
+        this.scanWithNotRootUser = scanWithNotRootUser;
     }
 
     /**
@@ -106,6 +108,14 @@ public class NVScanner {
      */
     public void setNvMountPath(String nvMountPath) {
         this.nvMountPath = nvMountPath;
+    }
+
+    public Boolean isScanWithNotRootUser() {
+        return scanWithNotRootUser;
+    }
+
+    public void setScanWithNotRootUser(Boolean scanWithNotRootUser) {
+        this.scanWithNotRootUser = scanWithNotRootUser;
     }
     
     

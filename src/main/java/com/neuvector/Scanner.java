@@ -43,14 +43,14 @@ public class Scanner
       * @param scanLayers Scan image layers 
       * @return ScanRepoReportData
       */
-    public static ScanRepoReportData scanRegistry(Registry registry, NVScanner nvScanner, String license, Boolean scanLayers) {
+     public static ScanRepoReportData scanRegistry(Registry registry, NVScanner nvScanner, String license, Boolean scanLayers) {
 
         String errorMessage = "";
         if(registry == null || nvScanner == null){
             errorMessage = "The Registry and nvScanner can't be null.";
         }
 
-        String[] dockerGroupCmdArgs = getDockerGroupCmdArgs(getScanReportPath(nvScanner.getNvMountPath()));
+        String[] dockerGroupCmdArgs = getDockerGroupCmdArgs(getScanReportPath(nvScanner.getNvMountPath()), nvScanner.isScanWithNotRootUser());
 
         errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
         ScanRepoReportData reportData = null;
@@ -113,7 +113,7 @@ public class Scanner
             errorMessage = "The image and nvScanner can't be null.";
         }
 
-        String[] dockerGroupCmdArgs = getDockerGroupCmdArgs(getScanReportPath(nvScanner.getNvMountPath()));
+        String[] dockerGroupCmdArgs = getDockerGroupCmdArgs(getScanReportPath(nvScanner.getNvMountPath()), nvScanner.isScanWithNotRootUser());
         errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
         ScanRepoReportData reportData = null;
 
@@ -339,9 +339,9 @@ public class Scanner
         return message.replace(credential, "******");
     }
 
-    static String[] getDockerGroupCmdArgs(String scanReportPath) {
+    static String[] getDockerGroupCmdArgs(String scanReportPath, Boolean scanWithNotRootUser) {
         String[] cmdGroupArgs = {"", ""};
-        if(!Boolean.valueOf(System.getenv("NEXUS_CONTAINER_SCANNING_USE_USER_ID")))
+        if(!scanWithNotRootUser)
             return cmdGroupArgs;
 
         // no user arg if file exists and it is owned by root
