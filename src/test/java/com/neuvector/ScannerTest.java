@@ -7,9 +7,10 @@ import com.neuvector.model.NVScanner;
 import com.neuvector.model.Registry;
 import com.neuvector.model.ScanRepoReportData;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,6 +23,9 @@ import java.nio.file.attribute.UserPrincipal;
  */
 public class ScannerTest 
 {
+
+    @Rule
+    public EnvironmentVariables environmentVariables = new EnvironmentVariables();
     @Test
     public void scanLocalImageTest() throws IOException {
         String license = "";
@@ -33,6 +37,7 @@ public class ScannerTest
         String nvRegistryPassword = "";
         String nvRegistryURL = "https://registry.hub.docker.com";
         String mountPath = "/temp";  //mountPath is an optional parameter. It will use "/var/neuvector" by default.
+        environmentVariables.set("NEXUS_CONTAINER_SCANNING_USE_USER_ID", "true");
 
         Image image = new Image(imageName, imageTag);
         NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath);
@@ -59,6 +64,7 @@ public class ScannerTest
         String nvRegistryUser = "";
         String nvRegistryPassword = "";
         String mountPath = "/temp";  //mountPath is an optional parameter. It will use "/var/neuvector" by default.
+        environmentVariables.set("NEXUS_CONTAINER_SCANNING_USE_USER_ID", "true");
 
         Registry registry = new Registry(registryURL, regUser, regPassword,repository,repositoryTag);
         NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath);

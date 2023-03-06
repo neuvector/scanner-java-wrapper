@@ -341,6 +341,8 @@ public class Scanner
 
     static String[] getDockerGroupCmdArgs(String scanReportPath) {
         String[] cmdGroupArgs = {"", ""};
+        if(!Boolean.valueOf(System.getenv("NEXUS_CONTAINER_SCANNING_USE_USER_ID")))
+            return cmdGroupArgs;
 
         // no user arg if file exists and it is owned by root
         Boolean ownedByRoot = ownedByRoot(scanReportPath);
