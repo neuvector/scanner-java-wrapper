@@ -50,7 +50,7 @@ public class Scanner
             errorMessage = "The Registry and nvScanner can't be null.";
         }
 
-        String[] dockerGroupCmdArgs = getDockerGroupCmdArgs(getScanReportPath(nvScanner.getNvMountPath()), nvScanner.isScanWithNotRootUser());
+        String[] dockerGroupCmdArgs = getDockerGroupCmdArgs(getScanReportPath(nvScanner.getNvMountPath()), nvScanner.isIncludeUserId());
 
         errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
         ScanRepoReportData reportData = null;
@@ -113,7 +113,7 @@ public class Scanner
             errorMessage = "The image and nvScanner can't be null.";
         }
 
-        String[] dockerGroupCmdArgs = getDockerGroupCmdArgs(getScanReportPath(nvScanner.getNvMountPath()), nvScanner.isScanWithNotRootUser());
+        String[] dockerGroupCmdArgs = getDockerGroupCmdArgs(getScanReportPath(nvScanner.getNvMountPath()), nvScanner.isIncludeUserId());
         errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
         ScanRepoReportData reportData = null;
 
@@ -339,9 +339,9 @@ public class Scanner
         return message.replace(credential, "******");
     }
 
-    static String[] getDockerGroupCmdArgs(String scanReportPath, Boolean scanWithNotRootUser) {
+    static String[] getDockerGroupCmdArgs(String scanReportPath, Boolean includeUserId) {
         String[] cmdGroupArgs = {"", ""};
-        if(!scanWithNotRootUser)
+        if(!includeUserId)
             return cmdGroupArgs;
 
         // no user arg if file exists and it is owned by root
