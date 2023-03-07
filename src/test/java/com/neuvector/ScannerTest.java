@@ -1,5 +1,6 @@
 package com.neuvector;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import com.neuvector.model.Image;
@@ -40,7 +41,7 @@ public class ScannerTest
 
         UserPrincipal user = getUserPrincipal(mountPath);
 
-        assertTrue(!user.getName().equals("root") );
+        assertFalse(user.getName().equals("root"));
         assertTrue( scanReportData != null );
     }
 
@@ -66,7 +67,7 @@ public class ScannerTest
 
         UserPrincipal user = getUserPrincipal(mountPath);
 
-        assertTrue(!user.getName().equals("root") );
+        assertFalse(user.getName().equals("root"));
         assertTrue( scanReportData != null );
     }
 
