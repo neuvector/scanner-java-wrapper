@@ -341,12 +341,13 @@ public class Scanner
 
     static String[] getDockerGroupCmdArgs(String scanReportPath, Boolean includeUserId) {
         String[] cmdGroupArgs = {"", ""};
-        if(!includeUserId)
+        if(!includeUserId){
             return cmdGroupArgs;
+        }
 
-        // no user arg if file exists and it is owned by root
+        // No user arg if file exists, and it is owned by root
         Boolean ownedByRoot = ownedByRoot(scanReportPath);
-        if (scanResultsFileExist(scanReportPath) && ownedByRoot != null && ownedByRoot) {
+        if (ownedByRoot != null && ownedByRoot) {
             return cmdGroupArgs;
         }
 
