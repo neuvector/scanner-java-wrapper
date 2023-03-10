@@ -391,7 +391,7 @@ public class Scanner
     }
 
     private static boolean scanResultsFileExist(String scanResultFilePath) {
-        File file = new File(scanReportPath);
+        File scanResultFile = new File(scanReportPath);
         return file.exists();
     }
 
