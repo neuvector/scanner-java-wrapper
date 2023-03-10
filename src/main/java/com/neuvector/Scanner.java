@@ -362,7 +362,7 @@ public class Scanner
     private static Boolean ownedByRoot(String scanReportPath)  {
         File scanResultFileJson = new File(scanReportPath);
         try {
-            return scanResultsFileExist(scanReportPath) && getUserPrincipal(scanReportPath, scanResultFileJson).getName().equals("root");
+            return "root".equals(getUserPrincipal(scanReportPath, scanResultFileJson).getName());
         } catch (IOException e) {
             return null;
         }
@@ -391,8 +391,8 @@ public class Scanner
     }
 
     private static boolean scanResultsFileExist(String scanResultFilePath) {
-        File scanResultFile = new File(scanReportPath);
-        return file.exists();
+        File scanResultFile = new File(scanResultFilePath);
+        return scanResultFile.exists();
     }
 
     private static UserPrincipal getUserPrincipal(String mountPath, File file) throws IOException {
