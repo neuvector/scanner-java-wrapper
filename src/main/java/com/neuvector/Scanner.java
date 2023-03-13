@@ -362,7 +362,7 @@ public class Scanner
     private static Boolean ownedByRoot(String scanReportPath)  {
         File scanResultFileJson = new File(scanReportPath);
         try {
-            return "root".equals(getUserPrincipal(scanReportPath, scanResultFileJson).getName());
+            return scanResultsFileExist(scanReportPath) && "root".equals(getUserPrincipal(scanReportPath, scanResultFileJson).getName());
         } catch (IOException e) {
             return null;
         }
