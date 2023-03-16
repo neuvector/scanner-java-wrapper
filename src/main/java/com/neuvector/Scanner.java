@@ -10,12 +10,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileOwnerAttributeView;
 import java.nio.file.attribute.UserPrincipal;
-import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.Stream;
 
 import com.google.gson.Gson;
-import com.neuvector.model.*;
+import com.neuvector.model.Image;
+import com.neuvector.model.NVScanner;
+import com.neuvector.model.Registry;
+import com.neuvector.model.ScanRepoReportData;
 
 
 /**
@@ -43,7 +45,7 @@ public class Scanner
       * @param scanLayers Scan image layers 
       * @return ScanRepoReportData
       */
-     public static ScanRepoReportData scanRegistry(Registry registry, NVScanner nvScanner, String license, Boolean scanLayers) {
+    public static ScanRepoReportData scanRegistry(Registry registry, NVScanner nvScanner, String license, Boolean scanLayers) {
 
         String errorMessage = "";
         if(registry == null || nvScanner == null){
@@ -68,36 +70,19 @@ public class Scanner
                 .withEnvironment("SCANNER_LICENSE=" + license)
                 .withEnvironment("SCANNER_REGISTRY=" + registry.getRegistryURL())
             ;
-            String[] credentials = {registry.getLoginPassword(), license};
             if( scanLayers ) {
                 builder.withEnvironment("SCANNER_SCAN_LAYERS=true");
-                reportData = getScanRepoReportData(registry, nvScanner, builder, credentials);
-            } else {
-                reportData = getScanRepoReportData(registry, nvScanner, builder, credentials);
             }
-        }
-
-        return reportData;
-    }
-
-    private static ScanRepoReportData getScanRepoReportData(
-        final Registry registry,
-        final NVScanner nvScanner,
-        final DockerRunCommandBuilder builder,
-        final String[] credentials)
-    {
-        ScanRepoReportData reportData;
-        if (registry.getLoginUser() == null && registry.getLoginPassword() == null) {
+            if (registry.getLoginUser() != null || registry.getLoginPassword() != null) {
+                builder
+                    .withEnvironment("SCANNER_REGISTRY_USERNAME=" + registry.getLoginUser())
+                    .withEnvironment("SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword());
+            }
             String[] cmdArgs = builder.buildForImage(getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL()));
+            String[] credentials = {registry.getLoginPassword(), license};
             reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
         }
-        else {
-            String[] cmdArgs = builder
-                .withEnvironment("SCANNER_REGISTRY_USERNAME=" + registry.getLoginUser())
-                .withEnvironment("SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword())
-                .buildForImage(getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL()));
-            reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
-        }
+
         return reportData;
     }
 
@@ -290,8 +275,6 @@ public class Scanner
     }
 
     private static ScanRepoReportData runScan(String[] cmdArgs, String scanReportPath, String[] credentials) {
-        //we need to clean the empty args
-        cmdArgs = Arrays.stream(cmdArgs).filter(s -> !s.isEmpty()).toArray(String[]::new);
 
         String errorMessage = runCMD(cmdArgs);
 
