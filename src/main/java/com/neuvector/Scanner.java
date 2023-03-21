@@ -1,16 +1,24 @@
 package com.neuvector;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileOwnerAttributeView;
+import java.nio.file.attribute.UserPrincipal;
 import java.util.Random;
 import java.util.stream.Stream;
 
 import com.google.gson.Gson;
-import com.neuvector.model.*;
+import com.neuvector.model.Image;
+import com.neuvector.model.NVScanner;
+import com.neuvector.model.Registry;
+import com.neuvector.model.ScanRepoReportData;
+
 
 /**
  * NeuVector Scanner APIs can scan security vulnerabilities of the local docker image or the docker registry. 
@@ -42,43 +50,43 @@ public class Scanner
         String errorMessage = "";
         if(registry == null || nvScanner == null){
             errorMessage = "The Registry and nvScanner can't be null.";
+        } else {
+            errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
         }
-
-        
-        errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
-        ScanRepoReportData reportData = null;
+        ScanRepoReportData reportData;
 
         if(errorMessage.length() > 0){
             reportData = new ScanRepoReportData();
             reportData.setError_message(errorMessage);
         }else{
-            String[] credentials = {registry.getLoginPassword(), license};
+            DockerRunCommandBuilder builder = new DockerRunCommandBuilder();
+            builder
+                .withUserAndGroup(getDockerUserGroupCmdArg(getScanReportPath(nvScanner.getNvMountPath())))
+                .withName(generateScannerName())
+                .withVolume(Scanner.SOCKET_MAPPING)
+                .withVolume(getMountPath(nvScanner))
+                .withEnvironment("SCANNER_REPOSITORY=" + registry.getRepository())
+                .withEnvironment("SCANNER_TAG=" + registry.getRepositoryTag())
+                .withEnvironment("SCANNER_LICENSE=" + license)
+                .withEnvironment("SCANNER_REGISTRY=" + registry.getRegistryURL())
+            ;
             if( scanLayers ) {
-                if (registry.getLoginUser() == null && registry.getLoginPassword() == null) {
-                    String[] cmdArgs = {"docker", "run", "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), "-e", "SCANNER_SCAN_LAYERS=true", getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
-                    reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
-                }
-                else {
-                    String[] cmdArgs = {"docker", "run", "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), "-e", "SCANNER_REGISTRY_USERNAME=" + registry.getLoginUser(), "-e", "SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword() , "-e", "SCANNER_SCAN_LAYERS=true", getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
-                    reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
-                }
-            }else {
-                if (registry.getLoginUser() == null && registry.getLoginPassword() == null) {
-                    String[] cmdArgs = {"docker", "run", "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
-                    reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
-                }
-                else {
-                    String[] cmdArgs = {"docker", "run", "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + registry.getRepository(), "-e", "SCANNER_TAG=" + registry.getRepositoryTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_REGISTRY=" + registry.getRegistryURL(), "-e", "SCANNER_REGISTRY_USERNAME=" + registry.getLoginUser(), "-e", "SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword() , getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
-                    reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
-                }
+                builder.withEnvironment("SCANNER_SCAN_LAYERS=true");
             }
-
+            if (registry.getLoginUser() != null || registry.getLoginPassword() != null) {
+                builder
+                    .withEnvironment("SCANNER_REGISTRY_USERNAME=" + registry.getLoginUser())
+                    .withEnvironment("SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword());
+            }
+            String[] cmdArgs = builder.buildForImage(getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL()));
+            String[] credentials = {registry.getLoginPassword(), license};
+            reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
         }
 
         return reportData;
     }
 
-     /**
+    /**
       * To scan a docker registry and return a java bean object of com.neuvector.model.ScanRepoReportData.
       * 
       * @param registry The registry object to be scanned
@@ -104,23 +112,31 @@ public class Scanner
         String errorMessage = "";
         if(image == null || nvScanner == null){
             errorMessage = "The image and nvScanner can't be null.";
+        } else {
+            errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
         }
-
-        errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
-        ScanRepoReportData reportData = null;
+        ScanRepoReportData reportData;
 
         if(errorMessage.length() > 0){
             reportData = new ScanRepoReportData();
             reportData.setError_message(errorMessage);
         }else{
             String[] credentials = {license};
+            DockerRunCommandBuilder builder = new DockerRunCommandBuilder();
+            builder
+                .withUserAndGroup(getDockerUserGroupCmdArg(getScanReportPath(nvScanner.getNvMountPath())))
+                .withName(generateScannerName())
+                .withVolume(Scanner.SOCKET_MAPPING)
+                .withVolume(getMountPath(nvScanner))
+                .withEnvironment("SCANNER_REPOSITORY=" + image.getImageName())
+                .withEnvironment("SCANNER_TAG=" + image.getImageTag())
+                .withEnvironment("SCANNER_LICENSE=" + license)
+            ;
             if( scanLayers ){
-                String[] cmdArgs = {"docker", "run", "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + image.getImageName(), "-e", "SCANNER_TAG=" + image.getImageTag(), "-e", "SCANNER_LICENSE=" + license, "-e", "SCANNER_SCAN_LAYERS=true", getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
-                reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
-            }else{
-                String[] cmdArgs = {"docker", "run", "--name", generateScannerName(), "--rm", "-v", Scanner.SOCKET_MAPPING, "-v", getMountPath(nvScanner), "-e", "SCANNER_REPOSITORY=" + image.getImageName(), "-e", "SCANNER_TAG=" + image.getImageTag(), "-e", "SCANNER_LICENSE=" + license, getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL())};
-                reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
+                builder.withEnvironment("SCANNER_SCAN_LAYERS=true");
             }
+            String[] cmdArgs = builder.buildForImage(getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL()));
+            reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
         }
 
         return reportData;
@@ -167,7 +183,7 @@ public class Scanner
                 String[] cmdArgsDockerLogout = {"docker", "logout"};
                 errorMessage = runCMD(cmdArgsDockerLogout);
             }
-        }else{
+        } else {
             String[] cmdArgsDockPull = {"docker", "pull", getNVImagePath(nvScannerImage, nvRegistryURL)};
             errorMessage = runCMD(cmdArgsDockPull);
         }
@@ -258,7 +274,7 @@ public class Scanner
 
     }
 
-    private static ScanRepoReportData runScan(String[] cmdArgs, String scanReportPath, String[] credentials){
+    private static ScanRepoReportData runScan(String[] cmdArgs, String scanReportPath, String[] credentials) {
 
         String errorMessage = runCMD(cmdArgs);
 
@@ -327,6 +343,74 @@ public class Scanner
 
     private static String maskCredential(String message, String credential){
         return message.replace(credential, "******");
+    }
+
+    static String getDockerUserGroupCmdArg(String scanReportPath) {
+        // No user arg if file exists, and it is owned by root
+        Boolean ownedByRoot = ownedByRoot(scanReportPath);
+        if (ownedByRoot != null && ownedByRoot) {
+            return null;
+        }
+
+        String cmdUserGroupArg = null;
+        String UID = executeCommand("id -u");
+        if ((UID != null && !UID.isEmpty())) {
+            if ("0".equals(UID)) {
+                return null; // runs as root
+            }
+            String GID = executeCommand("stat -c '%g' /var/run/docker.sock");
+            if ((GID != null && !GID.isEmpty())) {
+                cmdUserGroupArg = UID + ":" + GID.replace("'", "");
+            }
+        }
+        return cmdUserGroupArg;
+    }
+
+    private static Boolean ownedByRoot(String scanReportPath)  {
+        File scanResultFileJson = new File(scanReportPath);
+        try {
+            return scanResultsFileExist(scanReportPath) && "root".equals(getUserPrincipal(scanReportPath, scanResultFileJson).getName());
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    private static String executeCommand(String command) {
+        StringBuilder output = new StringBuilder();
+        try {
+            Process proc = Runtime.getRuntime().exec(command);
+            getExecValueFromBuffer(output, proc);
+        } catch (Exception e) {
+            return null;
+        }
+        return output.toString();
+    }
+
+    private static void getExecValueFromBuffer(StringBuilder output, Process proc) throws IOException, InterruptedException {
+        String line;
+        try (BufferedReader reader =
+                     new BufferedReader(new InputStreamReader(proc.getInputStream()))) {
+            while ((line = reader.readLine()) != null) {
+                output.append(line);
+            }
+            proc.waitFor();
+        }
+    }
+
+    private static boolean scanResultsFileExist(String scanResultFilePath) {
+        File scanResultFile = new File(scanResultFilePath);
+        return scanResultFile.exists();
+    }
+
+    private static UserPrincipal getUserPrincipal(String mountPath, File file) throws IOException {
+        UserPrincipal user = null;
+        if (file.exists()) {
+            Path path = Paths.get(mountPath);
+            FileOwnerAttributeView fileOwner = Files.getFileAttributeView(path,
+                    FileOwnerAttributeView.class);
+            user = fileOwner.getOwner();
+        }
+        return user;
     }
 
     public static String deleteDockerImagesByLabelKey(String label) {
