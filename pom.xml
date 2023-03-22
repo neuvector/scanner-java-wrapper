@@ -11,7 +11,7 @@
 
   <name>NeuVector Scanner API</name>
   <description>The NeuVector Scanner API is a Java toolkit for scanning docker repositories and docker images.</description>
-  <url>https://github.com/songlongcn/scanner</url>
+  <url>https://github.com/neuvector/scanner-java-wrapper</url>
 
   <licenses>
     <license>
@@ -30,9 +30,9 @@
   </developers>
 
   <scm>
-    <connection>scm:git:git://github.com/songlongcn/scanner.git</connection>
-    <developerConnection>scm:git:ssh://github.com/songlongcn/scanner.git</developerConnection>
-    <url>http://github.com/songlongcn/scanner/tree/master</url>
+    <connection>scm:git:git://github.com/neuvector/scanner-java-wrapper.git</connection>
+    <developerConnection>scm:git:ssh://github.com/neuvector/scanner-java-wrapper.git</developerConnection>
+    <url>http://github.com/neuvector/scanner-java-wrapper/tree/master</url>
   </scm>
 
   <dependencies>
