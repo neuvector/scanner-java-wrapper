@@ -33,8 +33,8 @@ public class ScannerTest
         String imageName = "alpine";
         String imageTag = "3.6";
         String nvScannerImage = "neuvector/scanner:latest";
-        String nvRegistryUser = "";
-        String nvRegistryPassword = "";
+        String nvRegistryUser = null;
+        String nvRegistryPassword = null;
         String nvRegistryURL = "https://registry.hub.docker.com";
         //mountPath is an optional parameter. It will use "/var/neuvector" by default.
         String mountPath = mountFolder.getRoot().getAbsolutePath();
@@ -61,8 +61,8 @@ public class ScannerTest
         String repositoryTag = "3.6";
         String nvScannerImage = "neuvector/scanner:latest";
         String nvRegistryURL = registryURL;
-        String nvRegistryUser = "";
-        String nvRegistryPassword = "";
+        String nvRegistryUser = null;
+        String nvRegistryPassword = null;
         //mountPath is an optional parameter. It will use "/var/neuvector" by default.
         String mountPath = mountFolder.getRoot().getAbsolutePath();
 
