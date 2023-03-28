@@ -32,8 +32,8 @@ add scanner.jar to your classpath.
     String nvRegistryUrl = "";
 
     //Login credentials to the Registry
-    String nvRegUser = "";
-    String nvPassword = "";
+    String nvRegUser = null;
+    String nvPassword = null;
     
     //The path to keep the scan report. 
     //When run it in Jenkins plugin, you can use the project's build path as the mountPath
