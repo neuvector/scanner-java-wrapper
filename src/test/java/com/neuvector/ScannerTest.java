@@ -40,7 +40,7 @@ public class ScannerTest
         String mountPath = mountFolder.getRoot().getAbsolutePath();
 
         Image image = new Image(imageName, imageTag);
-        NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath);
+        NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath, null);
 
         ScanRepoReportData scanReportData = Scanner.scanLocalImage(image,scanner,license);
 
@@ -67,7 +67,7 @@ public class ScannerTest
         String mountPath = mountFolder.getRoot().getAbsolutePath();
 
         Registry registry = new Registry(registryURL, regUser, regPassword,repository,repositoryTag);
-        NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath);
+        NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath, null);
 
         ScanRepoReportData scanReportData = Scanner.scanRegistry(registry, scanner, license);
 
