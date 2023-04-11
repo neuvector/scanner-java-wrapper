@@ -19,6 +19,7 @@ import com.neuvector.model.NVScanner;
 import com.neuvector.model.Registry;
 import com.neuvector.model.ScanRepoReportData;
 
+import org.slf4j.Logger;
 
 /**
  * NeuVector Scanner APIs can scan security vulnerabilities of the local docker image or the docker registry. 
@@ -51,7 +52,7 @@ public class Scanner
         if(registry == null || nvScanner == null){
             errorMessage = "The Registry and nvScanner can't be null.";
         } else {
-            errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
+            errorMessage = pullDockerImage(nvScanner);
         }
         ScanRepoReportData reportData;
 
@@ -80,7 +81,7 @@ public class Scanner
             }
             String[] cmdArgs = builder.buildForImage(getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL()));
             String[] credentials = {registry.getLoginPassword(), license};
-            reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
+            reportData = runScan(cmdArgs, nvScanner, credentials);
         }
 
         return reportData;
@@ -113,7 +114,7 @@ public class Scanner
         if(image == null || nvScanner == null){
             errorMessage = "The image and nvScanner can't be null.";
         } else {
-            errorMessage = pullDockerImage(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL(), nvScanner.getNvRegistryUser(), nvScanner.getNvRegistryPassword());
+            errorMessage = pullDockerImage(nvScanner);
         }
         ScanRepoReportData reportData;
 
@@ -136,7 +137,7 @@ public class Scanner
                 builder.withEnvironment("SCANNER_SCAN_LAYERS=true");
             }
             String[] cmdArgs = builder.buildForImage(getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL()));
-            reportData = runScan(cmdArgs, nvScanner.getNvMountPath(), credentials);
+            reportData = runScan(cmdArgs, nvScanner, credentials);
         }
 
         return reportData;
@@ -154,7 +155,12 @@ public class Scanner
           return scanLocalImage(image, nvScanner, license, false);
       }    
 
-    private static String pullDockerImage(String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword) {
+    private static String pullDockerImage(NVScanner nvScanner) {
+        String nvRegistryURL = nvScanner.getNvRegistryURL();
+        String nvRegistryUser = nvScanner.getNvRegistryUser();
+        String nvRegistryPassword = nvScanner.getNvRegistryPassword();
+        String nvScannerImage = nvScanner.getNvScannerImage();
+        Logger log = nvScanner.getLog();
 
         if(nvRegistryURL == null){
             nvRegistryURL = "";
@@ -176,16 +182,16 @@ public class Scanner
 
         if(!nvRegistryUser.equals("") && !nvRegistryPassword.equals("")){
             String[] cmdArgsDockerLogin = {"docker", "login", "-u", nvRegistryUser, "-p", nvRegistryPassword, nvRegistryURL};
-            errorMessage = runCMD(cmdArgsDockerLogin);
+            errorMessage = runCMD(cmdArgsDockerLogin, log);
             if(errorMessage.length() == 0){
                 String[] cmdArgsDockerPull = {"docker", "pull", getNVImagePath(nvScannerImage, nvRegistryURL)};
-                errorMessage = runCMD(cmdArgsDockerPull);
+                errorMessage = runCMD(cmdArgsDockerPull, log);
                 String[] cmdArgsDockerLogout = {"docker", "logout"};
-                errorMessage = runCMD(cmdArgsDockerLogout);
+                errorMessage = runCMD(cmdArgsDockerLogout, log);
             }
         } else {
             String[] cmdArgsDockPull = {"docker", "pull", getNVImagePath(nvScannerImage, nvRegistryURL)};
-            errorMessage = runCMD(cmdArgsDockPull);
+            errorMessage = runCMD(cmdArgsDockPull, log);
         }
 
         // mask the password in the error message
@@ -239,7 +245,7 @@ public class Scanner
 
     }
 
-    private static String runCMD(String[] cmdArgs){
+    private static String runCMD(String[] cmdArgs, Logger log){
         Process process;
         String errorMessage = "";
         try {
@@ -251,12 +257,18 @@ public class Scanner
             StringBuilder sb = new StringBuilder(String.join(" ", cmdArgs));
             while ((s = stdInput.readLine()) != null) {
                 // sb.append(System.getProperty("line.separator"));
+                if (log != null) {
+                    log.info(s);
+                }
                 sb.append(s);
             }
 
             // Read errors from the command
             while ((s = stdError.readLine()) != null) {
                 // sb.append(System.getProperty("line.separator"));
+                if (log != null) {
+                    log.error(s);
+                }
                 sb.append(s);
             }
 
@@ -274,9 +286,9 @@ public class Scanner
 
     }
 
-    private static ScanRepoReportData runScan(String[] cmdArgs, String scanReportPath, String[] credentials) {
+    private static ScanRepoReportData runScan(String[] cmdArgs, NVScanner nvScanner, String[] credentials) {
 
-        String errorMessage = runCMD(cmdArgs);
+        String errorMessage = runCMD(cmdArgs, nvScanner.getLog());
 
         ScanRepoReportData reportData = null;
 
@@ -290,7 +302,7 @@ public class Scanner
             reportData = new ScanRepoReportData();
             reportData.setError_message(errorMessage);
         }else{
-            reportData = parseScanReport(getScanReportPath(scanReportPath));
+            reportData = parseScanReport(getScanReportPath(nvScanner.getNvMountPath()));
         }
 
         return reportData;
@@ -416,7 +428,7 @@ public class Scanner
     public static String deleteDockerImagesByLabelKey(String label) {
         String errorMessage = "";
         String[] cmdArgsDockerDelete = {"docker", "image", "prune", "--force", "--filter=label=".concat(label)};
-        errorMessage = runCMD(cmdArgsDockerDelete);
+        errorMessage = runCMD(cmdArgsDockerDelete, null);
         return errorMessage;
     }
 
