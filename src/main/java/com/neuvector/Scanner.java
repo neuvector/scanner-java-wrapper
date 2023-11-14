@@ -65,7 +65,7 @@ public class Scanner
                 .withUserAndGroup(getDockerUserGroupCmdArg(getScanReportPath(nvScanner.getNvMountPath())))
                 .withName(generateScannerName())
                 .withVolume(Scanner.SOCKET_MAPPING)
-                .withVolume(getMountPath(nvScanner))
+                .withVolume(appendSELinuxSuffixIfRequired(nvScanner.isSELinuxSuffixRequired(), getMountPath(nvScanner)))
                 .withEnvironment("SCANNER_REPOSITORY=" + registry.getRepository())
                 .withEnvironment("SCANNER_TAG=" + registry.getRepositoryTag())
                 .withEnvironment("SCANNER_LICENSE=" + license)
@@ -319,6 +319,14 @@ public class Scanner
         }else {
             mountPath = CONTAINER_PATH + mountPath;
         }
+        return mountPath;
+    }
+
+    private static String appendSELinuxSuffixIfRequired(final Boolean isSELinuxSuffixRequired, final String mountPath) {
+        if(isSELinuxSuffixRequired != null && isSELinuxSuffixRequired){
+            return new StringBuilder(mountPath).append(":z").toString();
+        }
+
         return mountPath;
     }
 
