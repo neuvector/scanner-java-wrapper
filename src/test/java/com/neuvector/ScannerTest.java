@@ -78,7 +78,32 @@ public class ScannerTest
     }
 
     @Test
-    public void scanRegistryTestAddingSELinuxSuffixToMountPath() throws IOException {
+    public void scanLocalImageWhenBindMountContentIsSharedTestTest() throws IOException {
+        String license = "";
+
+        String imageName = "alpine";
+        String imageTag = "3.6";
+        String nvScannerImage = "neuvector/scanner:latest";
+        String nvRegistryUser = null;
+        String nvRegistryPassword = null;
+        String nvRegistryURL = "https://registry.hub.docker.com";
+        boolean bindMountShared = true;
+        //mountPath is an optional parameter. It will use "/var/neuvector" by default.
+        String mountPath = mountFolder.getRoot().getAbsolutePath();
+
+        Image image = new Image(imageName, imageTag);
+        NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath, null, bindMountShared);
+
+        ScanRepoReportData scanReportData = Scanner.scanLocalImage(image,scanner,license);
+
+        UserPrincipal user = getUserPrincipal(mountPath);
+
+        assertFalse(user.getName().equals("root"));
+        assertTrue( scanReportData != null );
+    }
+
+    @Test
+    public void scanRegistryWhenBindMountContentIsSharedTest() throws IOException {
         String license = "";
 
         String registryURL = "https://registry.hub.docker.com";
@@ -90,12 +115,12 @@ public class ScannerTest
         String nvRegistryURL = registryURL;
         String nvRegistryUser = null;
         String nvRegistryPassword = null;
-        Boolean modifyVolumeMountsSELinuxLabels = Boolean.TRUE;
+        boolean bindMountShared = true;
         //mountPath is an optional parameter. It will use "/var/neuvector" by default.
         String mountPath = mountFolder.getRoot().getAbsolutePath();
 
         Registry registry = new Registry(registryURL, regUser, regPassword,repository,repositoryTag);
-        NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath, null, modifyVolumeMountsSELinuxLabels);
+        NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath, null, bindMountShared);
 
         ScanRepoReportData scanReportData = Scanner.scanRegistry(registry, scanner, license);
 

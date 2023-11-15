@@ -65,7 +65,7 @@ public class Scanner
                 .withUserAndGroup(getDockerUserGroupCmdArg(getScanReportPath(nvScanner.getNvMountPath())))
                 .withName(generateScannerName())
                 .withVolume(Scanner.SOCKET_MAPPING)
-                .withVolume(appendSELinuxSuffixIfRequired(nvScanner.isBindMountShared(), getMountPath(nvScanner)))
+                .withVolume(appendBindMountSharedSuffixIfRequired(nvScanner.isBindMountShared(), getMountPath(nvScanner)))
                 .withEnvironment("SCANNER_REPOSITORY=" + registry.getRepository())
                 .withEnvironment("SCANNER_TAG=" + registry.getRepositoryTag())
                 .withEnvironment("SCANNER_LICENSE=" + license)
@@ -128,7 +128,7 @@ public class Scanner
                 .withUserAndGroup(getDockerUserGroupCmdArg(getScanReportPath(nvScanner.getNvMountPath())))
                 .withName(generateScannerName())
                 .withVolume(Scanner.SOCKET_MAPPING)
-                .withVolume(getMountPath(nvScanner))
+                .withVolume(appendBindMountSharedSuffixIfRequired(nvScanner.isBindMountShared(), getMountPath(nvScanner)))
                 .withEnvironment("SCANNER_REPOSITORY=" + image.getImageName())
                 .withEnvironment("SCANNER_TAG=" + image.getImageTag())
                 .withEnvironment("SCANNER_LICENSE=" + license)
@@ -322,8 +322,8 @@ public class Scanner
         return mountPath;
     }
 
-    private static String appendSELinuxSuffixIfRequired(final Boolean isSELinuxSuffixRequired, final String mountPath) {
-        if(isSELinuxSuffixRequired != null && isSELinuxSuffixRequired){
+    private static String appendBindMountSharedSuffixIfRequired(final Boolean isBindMountShared, final String mountPath) {
+        if(isBindMountShared != null && isBindMountShared){
             return new StringBuilder(mountPath).append(":z").toString();
         }
 
