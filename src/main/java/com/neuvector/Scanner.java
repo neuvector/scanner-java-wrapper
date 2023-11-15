@@ -65,7 +65,7 @@ public class Scanner
                 .withUserAndGroup(getDockerUserGroupCmdArg(getScanReportPath(nvScanner.getNvMountPath())))
                 .withName(generateScannerName())
                 .withVolume(Scanner.SOCKET_MAPPING)
-                .withVolume(appendSELinuxSuffixIfRequired(nvScanner.isSELinuxSuffixRequired(), getMountPath(nvScanner)))
+                .withVolume(appendSELinuxSuffixIfRequired(nvScanner.isBindMountShared(), getMountPath(nvScanner)))
                 .withEnvironment("SCANNER_REPOSITORY=" + registry.getRepository())
                 .withEnvironment("SCANNER_TAG=" + registry.getRepositoryTag())
                 .withEnvironment("SCANNER_LICENSE=" + license)
