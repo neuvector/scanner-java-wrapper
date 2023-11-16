@@ -49,6 +49,7 @@ public class Scanner
     public static ScanRepoReportData scanRegistry(Registry registry, NVScanner nvScanner, String license, Boolean scanLayers) {
 
         String errorMessage = "";
+        Logger log = nvScanner.getLog();
         if(registry == null || nvScanner == null){
             errorMessage = "The Registry and nvScanner can't be null.";
         } else {
@@ -80,6 +81,7 @@ public class Scanner
                     .withEnvironment("SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword());
             }
             String[] cmdArgs = builder.buildForImage(getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL()));
+            log.debug(getVolumeArgs(cmdArgs));
             String[] credentials = {registry.getLoginPassword(), license};
             reportData = runScan(cmdArgs, nvScanner, credentials);
         }
@@ -111,6 +113,7 @@ public class Scanner
     public static ScanRepoReportData scanLocalImage(Image image, NVScanner nvScanner, String license, Boolean scanLayers) {
 
         String errorMessage = "";
+        Logger log = nvScanner.getLog();
         if(image == null || nvScanner == null){
             errorMessage = "The image and nvScanner can't be null.";
         } else {
@@ -137,6 +140,7 @@ public class Scanner
                 builder.withEnvironment("SCANNER_SCAN_LAYERS=true");
             }
             String[] cmdArgs = builder.buildForImage(getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL()));
+            log.debug(getVolumeArgs(cmdArgs));
             reportData = runScan(cmdArgs, nvScanner, credentials);
         }
 
@@ -431,6 +435,18 @@ public class Scanner
             user = fileOwner.getOwner();
         }
         return user;
+    }
+
+    private static String getVolumeArgs(final String[] cmdArgs) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < cmdArgs.length; i++) {
+            if (cmdArgs[i] == "-v" && i + 1 < cmdArgs.length) {
+                sb.append(cmdArgs[i]).append(" ");
+                sb.append(cmdArgs[i + 1]).append(" ");
+            }
+        }
+        return sb.toString();
     }
 
     public static String deleteDockerImagesByLabelKey(String label) {
