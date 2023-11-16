@@ -78,7 +78,7 @@ public class ScannerTest
     }
 
     @Test
-    public void scanLocalImageWhenBindMountContentIsSharedTestTest() throws IOException {
+    public void scanLocalImageTest_BindMountShared() throws IOException {
         String license = "";
 
         String imageName = "alpine";
@@ -103,7 +103,7 @@ public class ScannerTest
     }
 
     @Test
-    public void scanRegistryWhenBindMountContentIsSharedTest() throws IOException {
+    public void scanRegistryTest_BindMountShared() throws IOException {
         String license = "";
 
         String registryURL = "https://registry.hub.docker.com";
