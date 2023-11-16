@@ -329,7 +329,7 @@ public class Scanner
         if(isBindMountShared != null && isBindMountShared){
             updatedMountPath = new StringBuilder(mountPath).append(":z").toString();
         }
-        log.debug(updatedMountPath);
+        log.info("Mount path used: {}", updatedMountPath);
         return updatedMountPath;
     }
 
