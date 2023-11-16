@@ -38,10 +38,12 @@ add scanner.jar to your classpath.
     //The path to keep the scan report. 
     //When run it in Jenkins plugin, you can use the project's build path as the mountPath
     String mountPath = "/temp"; 
-    
     // If you don't assign a value to it, it will use the default path "/var/neuvector" to save the scan report.
-    // NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword)
-    com.neuvector.model.NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath);
+    
+    boolean bindMountShared = null|true|false; //value in true, indicates that the bind mount content is shared among multiple containers
+    
+    // NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, log, bindMountShared)
+    com.neuvector.model.NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath, bindMountShared);
 
     //NeuVector license to run the Scanner
     String license = "xxx";  
@@ -83,8 +85,9 @@ add scanner.jar to your classpath.
     String nvRegUser = "";
     String nvPassword = "";
     String mountPath = "/temp"; //The path to keep the scan report. If you don't assign a value to it, it will use the path "/var/neuvector" by default.
-
-    com.neuvector.model.NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryUrl, nvRegUser, nvPassword, mountPath);
+    boolean bindMountShared = null|true|false; //value in true, indicates that the bind mount content is shared among multiple containers
+    
+    com.neuvector.model.NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryUrl, nvRegUser, nvPassword, mountPath, bindMountShared);
 
     // The scan result will be returned as a java bean object
     com.neuvector.model.ScanRepoReportData scanReportData = com.neuvector.Scanner.scanRegistry(registry, scanner, license);
