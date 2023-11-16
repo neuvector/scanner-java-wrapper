@@ -66,7 +66,7 @@ public class Scanner
                 .withUserAndGroup(getDockerUserGroupCmdArg(getScanReportPath(nvScanner.getNvMountPath())))
                 .withName(generateScannerName())
                 .withVolume(Scanner.SOCKET_MAPPING)
-                .withVolume(appendBindMountSharedSuffixIfRequired(nvScanner.isBindMountShared(), getMountPath(nvScanner)))
+                .withVolume(appendBindMountSharedSuffixIfRequired(nvScanner.isBindMountShared(), getMountPath(nvScanner), log))
                 .withEnvironment("SCANNER_REPOSITORY=" + registry.getRepository())
                 .withEnvironment("SCANNER_TAG=" + registry.getRepositoryTag())
                 .withEnvironment("SCANNER_LICENSE=" + license)
@@ -81,7 +81,6 @@ public class Scanner
                     .withEnvironment("SCANNER_REGISTRY_PASSWORD=" + registry.getLoginPassword());
             }
             String[] cmdArgs = builder.buildForImage(getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL()));
-            log.debug(getVolumeArgs(cmdArgs));
             String[] credentials = {registry.getLoginPassword(), license};
             reportData = runScan(cmdArgs, nvScanner, credentials);
         }
@@ -131,7 +130,7 @@ public class Scanner
                 .withUserAndGroup(getDockerUserGroupCmdArg(getScanReportPath(nvScanner.getNvMountPath())))
                 .withName(generateScannerName())
                 .withVolume(Scanner.SOCKET_MAPPING)
-                .withVolume(appendBindMountSharedSuffixIfRequired(nvScanner.isBindMountShared(), getMountPath(nvScanner)))
+                .withVolume(appendBindMountSharedSuffixIfRequired(nvScanner.isBindMountShared(), getMountPath(nvScanner), log))
                 .withEnvironment("SCANNER_REPOSITORY=" + image.getImageName())
                 .withEnvironment("SCANNER_TAG=" + image.getImageTag())
                 .withEnvironment("SCANNER_LICENSE=" + license)
@@ -140,7 +139,6 @@ public class Scanner
                 builder.withEnvironment("SCANNER_SCAN_LAYERS=true");
             }
             String[] cmdArgs = builder.buildForImage(getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL()));
-            log.debug(getVolumeArgs(cmdArgs));
             reportData = runScan(cmdArgs, nvScanner, credentials);
         }
 
@@ -326,12 +324,13 @@ public class Scanner
         return mountPath;
     }
 
-    private static String appendBindMountSharedSuffixIfRequired(final Boolean isBindMountShared, final String mountPath) {
+    private static String appendBindMountSharedSuffixIfRequired(final Boolean isBindMountShared, final String mountPath, final Logger log) {
+        String updatedMountPath = mountPath;
         if(isBindMountShared != null && isBindMountShared){
-            return new StringBuilder(mountPath).append(":z").toString();
+            updatedMountPath = new StringBuilder(mountPath).append(":z").toString();
         }
-
-        return mountPath;
+        log.debug(updatedMountPath);
+        return updatedMountPath;
     }
 
     private static String getScanReportPath(String path){
@@ -435,18 +434,6 @@ public class Scanner
             user = fileOwner.getOwner();
         }
         return user;
-    }
-
-    private static String getVolumeArgs(final String[] cmdArgs) {
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < cmdArgs.length; i++) {
-            if (cmdArgs[i] == "-v" && i + 1 < cmdArgs.length) {
-                sb.append(cmdArgs[i]).append(" ");
-                sb.append(cmdArgs[i + 1]).append(" ");
-            }
-        }
-        return sb.toString();
     }
 
     public static String deleteDockerImagesByLabelKey(String label) {
