@@ -9,6 +9,7 @@ public class NVScanner {
     String nvRegistryPassword;
     String nvMountPath;
     Logger log;
+    Boolean bindMountShared = false;
 
     public NVScanner(){}
 
@@ -17,13 +18,15 @@ public class NVScanner {
      * @param nvRegistryURL  The registry from which to pull the NeuVector Scanner image. If it is empty, the API will skip the action to pull the NeuVector Scanner image.
      * @param nvRegistryUser  The user name to login the registry. If the user name and the password are empty, the API will skip the docker login action.
      * @param nvRegistryPassword The password to login the registry.
+     * @param bindMountShared Indicates whether the bind mount content needs to be shared. Using True when it's needed. If null is received, the default value, which is False, will be used.
      */
-    public NVScanner(String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword, Logger log){
+    public NVScanner(String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword, Logger log, Boolean bindMountShared){
         this.nvRegistryURL = nvRegistryURL;
         this.nvScannerImage = nvScannerImage;
         this.nvRegistryUser = nvRegistryUser;
         this.nvRegistryPassword = nvRegistryPassword;
-        this.log = log;        
+        this.log = log;
+        this.bindMountShared = bindMountShared != null ? bindMountShared : false;
     }
 
     /**
@@ -33,14 +36,16 @@ public class NVScanner {
      * @param nvRegistryUser  The user name to login the registry. If the user name and the password are empty, the API will skip the docker login action.
      * @param nvRegistryPassword The password to login the registry.
      * @param nvMountPath  The mount path mapping to the path inside the NeuVector Scanner container. It is the path to store the scan result. It is optional. If you don't pass in <code>nvMountPath</code>, it will use the default path "/var/neuvector"
+     * @param bindMountShared Indicates whether the bind mount content needs to be shared. Using True when it's needed. If null is received, the default value, which is False, will be used.
      */
-    public NVScanner(String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword, String nvMountPath, Logger log){
+    public NVScanner(String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword, String nvMountPath, Logger log, Boolean bindMountShared){
         this.nvRegistryURL = nvRegistryURL;
         this.nvScannerImage = nvScannerImage;
         this.nvRegistryUser = nvRegistryUser;
         this.nvRegistryPassword = nvRegistryPassword;
         this.nvMountPath = nvMountPath;
         this.log = log;
+        this.bindMountShared = bindMountShared != null ? bindMountShared : false;
     }
 
     /**
@@ -115,5 +120,9 @@ public class NVScanner {
     
     public Logger getLog() {
         return log;
-    }    
+    }
+
+    public Boolean isBindMountShared() {
+        return bindMountShared;
+    }
 }

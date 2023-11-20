@@ -49,6 +49,7 @@ public class Scanner
     public static ScanRepoReportData scanRegistry(Registry registry, NVScanner nvScanner, String license, Boolean scanLayers) {
 
         String errorMessage = "";
+        Logger log = nvScanner.getLog();
         if(registry == null || nvScanner == null){
             errorMessage = "The Registry and nvScanner can't be null.";
         } else {
@@ -65,7 +66,7 @@ public class Scanner
                 .withUserAndGroup(getDockerUserGroupCmdArg(getScanReportPath(nvScanner.getNvMountPath())))
                 .withName(generateScannerName())
                 .withVolume(Scanner.SOCKET_MAPPING)
-                .withVolume(getMountPath(nvScanner))
+                .withVolume(appendBindMountSharedSuffixIfRequired(nvScanner.isBindMountShared(), getMountPath(nvScanner), log))
                 .withEnvironment("SCANNER_REPOSITORY=" + registry.getRepository())
                 .withEnvironment("SCANNER_TAG=" + registry.getRepositoryTag())
                 .withEnvironment("SCANNER_LICENSE=" + license)
@@ -111,6 +112,7 @@ public class Scanner
     public static ScanRepoReportData scanLocalImage(Image image, NVScanner nvScanner, String license, Boolean scanLayers) {
 
         String errorMessage = "";
+        Logger log = nvScanner.getLog();
         if(image == null || nvScanner == null){
             errorMessage = "The image and nvScanner can't be null.";
         } else {
@@ -128,7 +130,7 @@ public class Scanner
                 .withUserAndGroup(getDockerUserGroupCmdArg(getScanReportPath(nvScanner.getNvMountPath())))
                 .withName(generateScannerName())
                 .withVolume(Scanner.SOCKET_MAPPING)
-                .withVolume(getMountPath(nvScanner))
+                .withVolume(appendBindMountSharedSuffixIfRequired(nvScanner.isBindMountShared(), getMountPath(nvScanner), log))
                 .withEnvironment("SCANNER_REPOSITORY=" + image.getImageName())
                 .withEnvironment("SCANNER_TAG=" + image.getImageTag())
                 .withEnvironment("SCANNER_LICENSE=" + license)
@@ -320,6 +322,15 @@ public class Scanner
             mountPath = CONTAINER_PATH + mountPath;
         }
         return mountPath;
+    }
+
+    private static String appendBindMountSharedSuffixIfRequired(final Boolean isBindMountShared, final String mountPath, final Logger log) {
+        String updatedMountPath = mountPath;
+        if(isBindMountShared != null && isBindMountShared){
+            updatedMountPath = new StringBuilder(mountPath).append(":z").toString();
+        }
+        log.info("Using volume binding: {}", updatedMountPath);
+        return updatedMountPath;
     }
 
     private static String getScanReportPath(String path){
