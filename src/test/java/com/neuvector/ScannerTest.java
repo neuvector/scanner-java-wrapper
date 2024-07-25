@@ -1,18 +1,16 @@
 package com.neuvector;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import com.neuvector.model.Image;
 import com.neuvector.model.NVScanner;
 import com.neuvector.model.Registry;
 import com.neuvector.model.ScanRepoReportData;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,13 +18,16 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileOwnerAttributeView;
 import java.nio.file.attribute.UserPrincipal;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+
 /**
  * Unit tests
  */
 public class ScannerTest 
 {
-    @Rule
-    public TemporaryFolder mountFolder= new TemporaryFolder();
+    @TempDir
+    public File mountFolder;
 
     private static final Logger log = LoggerFactory.getLogger(ScannerTest.class);
 
@@ -41,7 +42,7 @@ public class ScannerTest
         String nvRegistryPassword = null;
         String nvRegistryURL = "https://registry.hub.docker.com";
         //mountPath is an optional parameter. It will use "/var/neuvector" by default.
-        String mountPath = mountFolder.getRoot().getAbsolutePath();
+        String mountPath = mountFolder.getAbsolutePath();
 
         Image image = new Image(imageName, imageTag);
         NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath, log, null);
@@ -68,7 +69,7 @@ public class ScannerTest
         String nvRegistryUser = null;
         String nvRegistryPassword = null;
         //mountPath is an optional parameter. It will use "/var/neuvector" by default.
-        String mountPath = mountFolder.getRoot().getAbsolutePath();
+        String mountPath = mountFolder.getAbsolutePath();
 
         Registry registry = new Registry(registryURL, regUser, regPassword,repository,repositoryTag);
         NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath, log, null);
@@ -93,7 +94,7 @@ public class ScannerTest
         String nvRegistryURL = "https://registry.hub.docker.com";
         boolean bindMountShared = true;
         //mountPath is an optional parameter. It will use "/var/neuvector" by default.
-        String mountPath = mountFolder.getRoot().getAbsolutePath();
+        String mountPath = mountFolder.getAbsolutePath();
 
         Image image = new Image(imageName, imageTag);
         NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath, log, bindMountShared);
@@ -121,7 +122,7 @@ public class ScannerTest
         String nvRegistryPassword = null;
         boolean bindMountShared = true;
         //mountPath is an optional parameter. It will use "/var/neuvector" by default.
-        String mountPath = mountFolder.getRoot().getAbsolutePath();
+        String mountPath = mountFolder.getAbsolutePath();
 
         Registry registry = new Registry(registryURL, regUser, regPassword,repository,repositoryTag);
         NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath, log, bindMountShared);
@@ -134,6 +135,11 @@ public class ScannerTest
         assertTrue( scanReportData != null );
     }
 
+    @Test
+    public void testEnvContainerSocketNotSet() {
+        assertEquals("/var/run/docker.sock:/var/run/docker.sock", Scanner.getSocketMountString());
+    }
+
     private static UserPrincipal getUserPrincipal(String mountPath) throws IOException {
         UserPrincipal user = null;
         Path path = Paths.get(mountPath + "/scan_result.json");
@@ -141,5 +147,20 @@ public class ScannerTest
                 FileOwnerAttributeView.class);
         user = fileOwner.getOwner();
         return user;
+    }
+}
+
+
+class ScannerTestPodmanEnv {
+
+    //@SetEnvironmentVariable(key = Scanner.ENV_CONTAINER_RUNTIME_SOCKET, value = "/var/run/podman.sock")
+    @BeforeEach
+    public void setUp() {
+        Scanner.SetEnvironment(new PodmanScannerEnvironmentImpl());
+    }
+
+    @Test
+    public void testEnvContainerSocketSet() {
+        assertEquals("/var/run/podman.sock:/var/run/docker.sock", Scanner.getSocketMountString());
     }
 }

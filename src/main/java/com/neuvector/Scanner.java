@@ -32,10 +32,23 @@ import org.slf4j.Logger;
  */
 public class Scanner 
 {
-
     private static final String SOCKET_MAPPING = "/var/run/docker.sock:/var/run/docker.sock";
     private static final String CONTAINER_PATH = "/var/neuvector";
     private static final String SCAN_REPORT = "scan_result.json";
+
+    private static ScannerEnvironment scannerEnvironment;
+
+    public static void SetEnvironment(ScannerEnvironment environment) {
+        Scanner.scannerEnvironment = environment;
+    }
+
+    private static ScannerEnvironment GetEnvironment() {
+        if (Scanner.scannerEnvironment == null) {
+            Scanner.scannerEnvironment = new ScannerEnvironmentImpl();
+        }
+        Scanner.scannerEnvironment.create();
+        return Scanner.scannerEnvironment;
+    }
 
      /**
       * To scan a docker registry and return a java bean object of com.neuvector.model.ScanRepoReportData.
@@ -443,4 +456,7 @@ public class Scanner
         return errorMessage;
     }
 
+    public static String getSocketMountString() {
+        return String.format("%s:/var/run/docker.sock", Scanner.GetEnvironment().GetRuntimeSocket());
+    }
 }
