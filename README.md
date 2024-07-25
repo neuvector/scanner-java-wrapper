@@ -93,6 +93,13 @@ add scanner.jar to your classpath.
     com.neuvector.model.ScanRepoReportData scanReportData = com.neuvector.Scanner.scanRegistry(registry, scanner, license);
 ```
 
+## Container Runtimes other than Docker
+
+To support container runtimes that are Docker-compliant, but where the Container Runtime Socket is
+not at the Docker default location of `/var/run/docker.sock`, the Environment Variable `CONTAINER_RUNTIME_SOCKET`
+can be set to define the location. For example - set this to `/var/run/podman.sock` if your Container 
+Runtime is `podman`.
+
 ## License
 
 Copyright © 2016-2022 [NeuVector Inc](https://neuvector.com). All Rights Reserved
