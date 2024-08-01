@@ -1,8 +1,5 @@
 package com.neuvector;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
 import com.neuvector.model.Image;
 import com.neuvector.model.NVScanner;
 import com.neuvector.model.Registry;
@@ -19,6 +16,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileOwnerAttributeView;
 import java.nio.file.attribute.UserPrincipal;
+
+import static org.junit.Assert.*;
 
 /**
  * Unit tests
@@ -132,6 +131,29 @@ public class ScannerTest
 
         assertFalse(user.getName().equals("root"));
         assertTrue( scanReportData != null );
+    }
+
+    @Test
+    public void scanLocalImageNonExistentContainerRuntimeTest() throws IOException {
+        String license = "";
+
+        String imageName = "alpine";
+        String imageTag = "3.6";
+        String nvScannerImage = "neuvector/scanner:latest";
+        String nvRegistryUser = null;
+        String nvRegistryPassword = null;
+        String nvRegistryURL = "https://registry.hub.docker.com";
+        //mountPath is an optional parameter. It will use "/var/neuvector" by default.
+        String mountPath = mountFolder.getRoot().getAbsolutePath();
+        String nvContainerRuntimeCommand = "this-does-not-exist";
+
+        Image image = new Image(imageName, imageTag);
+        NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath, log, null, nvContainerRuntimeCommand);
+
+        ScanRepoReportData scanReportData = Scanner.scanLocalImage(image,scanner,license);
+
+        assertTrue( scanReportData != null );
+        assertEquals(String.format("Cannot run program \"%s\": error=2, No such file or directory", nvContainerRuntimeCommand), scanReportData.getError_message());
     }
 
     private static UserPrincipal getUserPrincipal(String mountPath) throws IOException {

@@ -10,9 +10,13 @@ public class DockerRunCommandBuilder
 {
     private final List<String> cmdList;
 
-    public DockerRunCommandBuilder() {
+    /**
+     *
+     * @param containerRuntimeCommand Contianer Runtime Command to use - default would be `docker`.
+     */
+    public DockerRunCommandBuilder(String containerRuntimeCommand) {
         cmdList = new ArrayList<>();
-        cmdList.add("docker");
+        cmdList.add(containerRuntimeCommand);
         cmdList.add("run");
         cmdList.add("--rm");
     }

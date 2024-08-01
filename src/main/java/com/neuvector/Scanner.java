@@ -32,10 +32,12 @@ import org.slf4j.Logger;
  */
 public class Scanner 
 {
-
-    private static final String SOCKET_MAPPING = "/var/run/docker.sock:/var/run/docker.sock";
     private static final String CONTAINER_PATH = "/var/neuvector";
     private static final String SCAN_REPORT = "scan_result.json";
+
+    public static String GetSocketMapping(String sourceSocketPath) {
+        return String.format("%s:/var/run/docker.sock", sourceSocketPath);
+    }
 
      /**
       * To scan a docker registry and return a java bean object of com.neuvector.model.ScanRepoReportData.
@@ -61,11 +63,11 @@ public class Scanner
             reportData = new ScanRepoReportData();
             reportData.setError_message(errorMessage);
         }else{
-            DockerRunCommandBuilder builder = new DockerRunCommandBuilder();
+            DockerRunCommandBuilder builder = new DockerRunCommandBuilder(nvScanner.getContainerRuntimeCommand());
             builder
                 .withUserAndGroup(getDockerUserGroupCmdArg(getScanReportPath(nvScanner.getNvMountPath())))
                 .withName(generateScannerName())
-                .withVolume(Scanner.SOCKET_MAPPING)
+                .withVolume(Scanner.GetSocketMapping(nvScanner.getContainerRuntimeSocket()))
                 .withVolume(appendBindMountSharedSuffixIfRequired(nvScanner.isBindMountShared(), getMountPath(nvScanner), log))
                 .withEnvironment("SCANNER_REPOSITORY=" + registry.getRepository())
                 .withEnvironment("SCANNER_TAG=" + registry.getRepositoryTag())
@@ -125,11 +127,11 @@ public class Scanner
             reportData.setError_message(errorMessage);
         }else{
             String[] credentials = {license};
-            DockerRunCommandBuilder builder = new DockerRunCommandBuilder();
+            DockerRunCommandBuilder builder = new DockerRunCommandBuilder(nvScanner.getContainerRuntimeCommand());
             builder
                 .withUserAndGroup(getDockerUserGroupCmdArg(getScanReportPath(nvScanner.getNvMountPath())))
                 .withName(generateScannerName())
-                .withVolume(Scanner.SOCKET_MAPPING)
+                .withVolume(Scanner.GetSocketMapping(nvScanner.getContainerRuntimeSocket()))
                 .withVolume(appendBindMountSharedSuffixIfRequired(nvScanner.isBindMountShared(), getMountPath(nvScanner), log))
                 .withEnvironment("SCANNER_REPOSITORY=" + image.getImageName())
                 .withEnvironment("SCANNER_TAG=" + image.getImageTag())
