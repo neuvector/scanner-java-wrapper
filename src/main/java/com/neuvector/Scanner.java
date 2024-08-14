@@ -61,11 +61,11 @@ public class Scanner
             reportData = new ScanRepoReportData();
             reportData.setError_message(errorMessage);
         }else{
-            DockerRunCommandBuilder builder = new DockerRunCommandBuilder();
+            DockerRunCommandBuilder builder = new DockerRunCommandBuilder(nvScanner.getRuntime());
             builder
                 .withUserAndGroup(getDockerUserGroupCmdArg(getScanReportPath(nvScanner.getNvMountPath())))
                 .withName(generateScannerName())
-                .withVolume(Scanner.SOCKET_MAPPING)
+                .withVolume(nvScanner.getSocketMapping())
                 .withVolume(appendBindMountSharedSuffixIfRequired(nvScanner.isBindMountShared(), getMountPath(nvScanner), log))
                 .withEnvironment("SCANNER_REPOSITORY=" + registry.getRepository())
                 .withEnvironment("SCANNER_TAG=" + registry.getRepositoryTag())
@@ -125,11 +125,11 @@ public class Scanner
             reportData.setError_message(errorMessage);
         }else{
             String[] credentials = {license};
-            DockerRunCommandBuilder builder = new DockerRunCommandBuilder();
+            DockerRunCommandBuilder builder = new DockerRunCommandBuilder(nvScanner.getRuntime());
             builder
                 .withUserAndGroup(getDockerUserGroupCmdArg(getScanReportPath(nvScanner.getNvMountPath())))
                 .withName(generateScannerName())
-                .withVolume(Scanner.SOCKET_MAPPING)
+                .withVolume(nvScanner.getSocketMapping())
                 .withVolume(appendBindMountSharedSuffixIfRequired(nvScanner.isBindMountShared(), getMountPath(nvScanner), log))
                 .withEnvironment("SCANNER_REPOSITORY=" + image.getImageName())
                 .withEnvironment("SCANNER_TAG=" + image.getImageTag())
@@ -139,6 +139,7 @@ public class Scanner
                 builder.withEnvironment("SCANNER_SCAN_LAYERS=true");
             }
             String[] cmdArgs = builder.buildForImage(getNVImagePath(nvScanner.getNvScannerImage(), nvScanner.getNvRegistryURL()));
+            log.info("Running container scan via: {}", String.join(" ", cmdArgs));
             reportData = runScan(cmdArgs, nvScanner, credentials);
         }
 

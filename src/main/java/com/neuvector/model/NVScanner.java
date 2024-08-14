@@ -10,6 +10,8 @@ public class NVScanner {
     String nvMountPath;
     Logger log;
     Boolean bindMountShared = false;
+    String runtime;
+    String socketMapping;
 
     public NVScanner(){}
 
@@ -38,7 +40,7 @@ public class NVScanner {
      * @param nvMountPath  The mount path mapping to the path inside the NeuVector Scanner container. It is the path to store the scan result. It is optional. If you don't pass in <code>nvMountPath</code>, it will use the default path "/var/neuvector"
      * @param bindMountShared Indicates whether the bind mount content needs to be shared. Using True when it's needed. If null is received, the default value, which is False, will be used.
      */
-    public NVScanner(String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword, String nvMountPath, Logger log, Boolean bindMountShared){
+    public NVScanner(String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword, String nvMountPath, Logger log, Boolean bindMountShared, String runtime, String socketMapping){
         this.nvRegistryURL = nvRegistryURL;
         this.nvScannerImage = nvScannerImage;
         this.nvRegistryUser = nvRegistryUser;
@@ -46,6 +48,8 @@ public class NVScanner {
         this.nvMountPath = nvMountPath;
         this.log = log;
         this.bindMountShared = bindMountShared != null ? bindMountShared : false;
+        this.runtime = runtime;
+        this.socketMapping = socketMapping;
     }
 
     /**
@@ -124,5 +128,13 @@ public class NVScanner {
 
     public Boolean isBindMountShared() {
         return bindMountShared;
+    }
+
+    public String getRuntime() {
+        return runtime;
+    }
+
+    public String getSocketMapping() {
+        return socketMapping;
     }
 }
