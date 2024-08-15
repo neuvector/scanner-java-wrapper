@@ -10,6 +10,13 @@ public class DockerRunCommandBuilder
 {
     private final List<String> cmdList;
 
+    public DockerRunCommandBuilder() {
+        cmdList = new ArrayList<>("docker");
+        cmdList.add(runtime);
+        cmdList.add("run");
+        cmdList.add("--rm");
+    }
+
     public DockerRunCommandBuilder(String runtime) {
         cmdList = new ArrayList<>();
         cmdList.add(runtime);
