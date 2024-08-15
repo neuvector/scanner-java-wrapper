@@ -1,5 +1,6 @@
 package com.neuvector.model;
 
+import com.neuvector.Scanner;
 import org.slf4j.Logger;
 
 public class NVScanner {

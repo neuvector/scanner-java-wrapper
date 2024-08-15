@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 public class Scanner 
 {
 
-    private static final String SOCKET_MAPPING = "/var/run/docker.sock:/var/run/docker.sock";
+    public static final String SOCKET_MAPPING = "/var/run/docker.sock:/var/run/docker.sock";
     private static final String CONTAINER_PATH = "/var/neuvector";
     private static final String SCAN_REPORT = "scan_result.json";
 
