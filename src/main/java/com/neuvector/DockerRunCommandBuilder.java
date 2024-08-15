@@ -12,7 +12,6 @@ public class DockerRunCommandBuilder
 
     public DockerRunCommandBuilder() {
         cmdList = new ArrayList<>("docker");
-        cmdList.add(runtime);
         cmdList.add("run");
         cmdList.add("--rm");
     }
