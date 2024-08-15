@@ -11,8 +11,8 @@ public class DockerRunCommandBuilder
     private final List<String> cmdList;
 
     public DockerRunCommandBuilder() {
-        cmdList = new ArrayList<>("docker");
-        cmdList.add("run");
+        cmdList = new ArrayList<>();
+        cmdList.add("docker");
         cmdList.add("--rm");
     }
 
