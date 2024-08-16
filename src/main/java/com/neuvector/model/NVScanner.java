@@ -11,8 +11,8 @@ public class NVScanner {
     String nvMountPath;
     Logger log;
     Boolean bindMountShared = false;
-    String runtime;
-    String socketMapping;
+    String runtime = "docker";
+    String socketMapping = Scanner.SOCKET_MAPPING;
 
     public NVScanner(){}
 
@@ -51,8 +51,12 @@ public class NVScanner {
         this.nvMountPath = nvMountPath;
         this.log = log;
         this.bindMountShared = bindMountShared != null ? bindMountShared : false;
-        this.runtime = runtime != null ? runtime : "docker";
-        this.socketMapping = socketMapping != null ? socketMapping : Scanner.SOCKET_MAPPING;
+        if (runtime != null) {
+            this.runtime = runtime;
+        }
+        if (socketMapping != null) {
+            this.socketMapping = socketMapping;
+        }
     }
 
     /**
