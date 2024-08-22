@@ -41,9 +41,15 @@ add scanner.jar to your classpath.
     // If you don't assign a value to it, it will use the default path "/var/neuvector" to save the scan report.
     
     boolean bindMountShared = null|true|false; //value in true, indicates that the bind mount content is shared among multiple containers
+
+    // Runtime to be used to run the container. Defaults to "docker" if not provided
+    String runtime = "docker";
+
+    // Socketmapping for docker in docker environments. Defaults to /var/run/docker.sock:/var/run/docker.sock if not overridden. 
+    String socketMapping = "/var/run/docker.sock:/var/run/docker.sock"
     
     // NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, log, bindMountShared)
-    com.neuvector.model.NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath, bindMountShared);
+    com.neuvector.model.NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryURL, nvRegistryUser, nvRegistryPassword, mountPath, bindMountShared, runtime, socketMapping);
 
     //NeuVector license to run the Scanner
     String license = "xxx";  
@@ -86,8 +92,13 @@ add scanner.jar to your classpath.
     String nvPassword = "";
     String mountPath = "/temp"; //The path to keep the scan report. If you don't assign a value to it, it will use the path "/var/neuvector" by default.
     boolean bindMountShared = null|true|false; //value in true, indicates that the bind mount content is shared among multiple containers
+    // Runtime to be used to run the container. Defaults to docker if not provided
+    String runtime = "docker";
+
+    // Socketmapping for docker in docker environments. Defaults to /var/run/docker.sock:/var/run/docker.sock if not overridden. 
+    String socketMapping = "/var/run/docker.sock:/var/run/docker.sock"
     
-    com.neuvector.model.NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryUrl, nvRegUser, nvPassword, mountPath, bindMountShared);
+    com.neuvector.model.NVScanner scanner = new NVScanner(nvScannerImage, nvRegistryUrl, nvRegUser, nvPassword, mountPath, bindMountShared, runtime, socketMapping);
 
     // The scan result will be returned as a java bean object
     com.neuvector.model.ScanRepoReportData scanReportData = com.neuvector.Scanner.scanRegistry(registry, scanner, license);
