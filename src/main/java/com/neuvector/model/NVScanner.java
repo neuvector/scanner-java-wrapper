@@ -1,5 +1,6 @@
 package com.neuvector.model;
 
+import com.neuvector.Scanner;
 import org.slf4j.Logger;
 
 public class NVScanner {
@@ -10,6 +11,8 @@ public class NVScanner {
     String nvMountPath;
     Logger log;
     Boolean bindMountShared = false;
+    String runtime = "docker";
+    String socketMapping = Scanner.SOCKET_MAPPING;
 
     public NVScanner(){}
 
@@ -37,8 +40,10 @@ public class NVScanner {
      * @param nvRegistryPassword The password to login the registry.
      * @param nvMountPath  The mount path mapping to the path inside the NeuVector Scanner container. It is the path to store the scan result. It is optional. If you don't pass in <code>nvMountPath</code>, it will use the default path "/var/neuvector"
      * @param bindMountShared Indicates whether the bind mount content needs to be shared. Using True when it's needed. If null is received, the default value, which is False, will be used.
+     * @param runtime Indicates which runtime platform will be used to invoke the neuvector image. Examples can be docker, podman etc.. If not provided, will default to docker
+     * @param socketMapping Socket mapping argument to be used. This is needed for docker in docker environments. Default value is the Scanner.SOCKET_MAPPING constant
      */
-    public NVScanner(String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword, String nvMountPath, Logger log, Boolean bindMountShared){
+    public NVScanner(String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword, String nvMountPath, Logger log, Boolean bindMountShared, String runtime, String socketMapping){
         this.nvRegistryURL = nvRegistryURL;
         this.nvScannerImage = nvScannerImage;
         this.nvRegistryUser = nvRegistryUser;
@@ -46,6 +51,12 @@ public class NVScanner {
         this.nvMountPath = nvMountPath;
         this.log = log;
         this.bindMountShared = bindMountShared != null ? bindMountShared : false;
+        if (runtime != null) {
+            this.runtime = runtime;
+        }
+        if (socketMapping != null) {
+            this.socketMapping = socketMapping;
+        }
     }
 
     /**
@@ -124,5 +135,13 @@ public class NVScanner {
 
     public Boolean isBindMountShared() {
         return bindMountShared;
+    }
+
+    public String getRuntime() {
+        return runtime;
+    }
+
+    public String getSocketMapping() {
+        return socketMapping;
     }
 }

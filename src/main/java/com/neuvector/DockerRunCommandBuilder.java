@@ -13,6 +13,12 @@ public class DockerRunCommandBuilder
     public DockerRunCommandBuilder() {
         cmdList = new ArrayList<>();
         cmdList.add("docker");
+        cmdList.add("--rm");
+    }
+
+    public DockerRunCommandBuilder(String runtime) {
+        cmdList = new ArrayList<>();
+        cmdList.add(runtime);
         cmdList.add("run");
         cmdList.add("--rm");
     }
@@ -32,6 +38,9 @@ public class DockerRunCommandBuilder
     }
 
     DockerRunCommandBuilder withVolume(String volumeMapping) {
+        if ("".equals(volumeMapping)) {
+            return this;
+        }
         cmdList.add("-v");
         cmdList.add(volumeMapping);
         return this;
