@@ -217,8 +217,14 @@ public class Scanner
     }
 
     private static ScanRepoReportData parseScanReport(String reportJson){
-        ScanRepoReportData scanReportData = new Gson().fromJson(reportJson, ScanRepoReportData.class);
-        return scanReportData;
+        try {
+            ScanRepoReportData scanReportData = new Gson().fromJson(reportJson, ScanRepoReportData.class);
+            return scanReportData;
+        } catch (Exception e) {
+            ScanRepoReportData scanRepoReportData = new ScanRepoReportData();
+            scanRepoReportData.setError_message(e.getMessage());
+            return scanRepoReportData;
+        }
     }
 
     private static String runCMD(String[] cmdArgs, Logger log, StringBuilder outputCollector){
