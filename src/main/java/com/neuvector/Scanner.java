@@ -236,13 +236,17 @@ public class Scanner
                 if (outputCollector != null) {
                     outputCollector.append(s);
                 }
-                if ("scan_result.json".equals(s)) {
-                    // Do not print out scan_result.json in logs as it might get quite large (thousands of lines)
-                    // Stop logging after we encounter scan_result.json
-                    catScanResultJsonOutput = true;
-                }
                 // sb.append(System.getProperty("line.separator"));
                 if (log != null) {
+                    if ("scan_result.json".equals(s)) {
+                        // Do not print out scan_result.json in logs as it might get quite large (thousands of lines)
+                        // Stop logging after we encounter scan_result.json
+                        catScanResultJsonOutput = true;
+                        if (!log.isDebugEnabled()) {
+                            log.info("If debug mode is enabled, the contents of scan_result.json can be observed in the logs.");
+                            log.info("Contents of scan_result.json are not included at info level.");
+                        }
+                    }
                     if (catScanResultJsonOutput) {
                         log.debug(s);
                     } else {
