@@ -23,17 +23,9 @@ public class DockerRunCommandBuilder
         cmdList.add("--rm");
     }
 
-    DockerRunCommandBuilder withUserAndGroup(String userIdGroupId) {
-        if (userIdGroupId != null && userIdGroupId.length() > 0) {
-            cmdList.add("-u");
-            cmdList.add(userIdGroupId);
-        }
-        return this;
-    }
-
-    DockerRunCommandBuilder withName(String name) {
-        cmdList.add("--name");
-        cmdList.add(name);
+    DockerRunCommandBuilder withEntrypoint(String command) {
+        cmdList.add("--entrypoint");
+        cmdList.add(command);
         return this;
     }
 
@@ -52,8 +44,18 @@ public class DockerRunCommandBuilder
         return this;
     }
 
-    String[] buildForImage(String image) {
+    DockerRunCommandBuilder withImage(String image) {
         cmdList.add(image);
-        return cmdList.toArray(new String[0]);
+        return this;
+    }
+
+    DockerRunCommandBuilder withCommand(String command) {
+        cmdList.add("-c");
+        cmdList.add(command);
+        return this;
+    }
+
+    public List<String> getCmdList() {
+        return cmdList;
     }
 }

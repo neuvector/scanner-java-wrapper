@@ -8,9 +8,7 @@ public class NVScanner {
     String nvRegistryURL;
     String nvRegistryUser;
     String nvRegistryPassword;
-    String nvMountPath;
     Logger log;
-    Boolean bindMountShared = false;
     String runtime = "docker";
     String socketMapping = Scanner.SOCKET_MAPPING;
 
@@ -21,15 +19,13 @@ public class NVScanner {
      * @param nvRegistryURL  The registry from which to pull the NeuVector Scanner image. If it is empty, the API will skip the action to pull the NeuVector Scanner image.
      * @param nvRegistryUser  The user name to login the registry. If the user name and the password are empty, the API will skip the docker login action.
      * @param nvRegistryPassword The password to login the registry.
-     * @param bindMountShared Indicates whether the bind mount content needs to be shared. Using True when it's needed. If null is received, the default value, which is False, will be used.
      */
-    public NVScanner(String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword, Logger log, Boolean bindMountShared){
+    public NVScanner(String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword, Logger log){
         this.nvRegistryURL = nvRegistryURL;
         this.nvScannerImage = nvScannerImage;
         this.nvRegistryUser = nvRegistryUser;
         this.nvRegistryPassword = nvRegistryPassword;
         this.log = log;
-        this.bindMountShared = bindMountShared != null ? bindMountShared : false;
     }
 
     /**
@@ -38,19 +34,15 @@ public class NVScanner {
      * @param nvRegistryURL  The registry from which to pull the NeuVector Scanner image. If it is empty, the API will skip the action to pull the NeuVector Scanner image.
      * @param nvRegistryUser  The user name to login the registry. If the user name and the password are empty, the API will skip the docker login action.
      * @param nvRegistryPassword The password to login the registry.
-     * @param nvMountPath  The mount path mapping to the path inside the NeuVector Scanner container. It is the path to store the scan result. It is optional. If you don't pass in <code>nvMountPath</code>, it will use the default path "/var/neuvector"
-     * @param bindMountShared Indicates whether the bind mount content needs to be shared. Using True when it's needed. If null is received, the default value, which is False, will be used.
      * @param runtime Indicates which runtime platform will be used to invoke the neuvector image. Examples can be docker, podman etc.. If not provided, will default to docker
      * @param socketMapping Socket mapping argument to be used. This is needed for docker in docker environments. Default value is the Scanner.SOCKET_MAPPING constant
      */
-    public NVScanner(String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword, String nvMountPath, Logger log, Boolean bindMountShared, String runtime, String socketMapping){
+    public NVScanner(String nvScannerImage, String nvRegistryURL, String nvRegistryUser, String nvRegistryPassword, Logger log, String runtime, String socketMapping){
         this.nvRegistryURL = nvRegistryURL;
         this.nvScannerImage = nvScannerImage;
         this.nvRegistryUser = nvRegistryUser;
         this.nvRegistryPassword = nvRegistryPassword;
-        this.nvMountPath = nvMountPath;
         this.log = log;
-        this.bindMountShared = bindMountShared != null ? bindMountShared : false;
         if (runtime != null) {
             this.runtime = runtime;
         }
@@ -115,26 +107,8 @@ public class NVScanner {
         this.nvRegistryPassword = nvRegistryPassword;
     }
 
-    /**
-     * @return String
-     */
-    public String getNvMountPath() {
-        return nvMountPath;
-    }
-
-    /**
-     * @param nvMountPath The file path to save the scan report.
-     */
-    public void setNvMountPath(String nvMountPath) {
-        this.nvMountPath = nvMountPath;
-    }
-    
     public Logger getLog() {
         return log;
-    }
-
-    public Boolean isBindMountShared() {
-        return bindMountShared;
     }
 
     public String getRuntime() {
